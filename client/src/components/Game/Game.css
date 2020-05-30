@@ -15,6 +15,42 @@ ol, ul {
 
 .status {
   margin-bottom: 10px;
+  align-self: flex-start;
+}
+
+.bigsquare {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  height: 18vh;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 10vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.minisquare
+{
+  background: #fff;
+  height: 50%;
+  width: 100;
+  margin-top: 10;
+  line-height: 0;
+  margin-bottom: 0;
+  border: 0;
+}
+
+.minisquare:focus {
+  outline: none;
+}
+
+.minisquare:hover {
+  background: #ddd;
 }
 
 .square {
@@ -24,12 +60,12 @@ ol, ul {
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 200px;
+  height: 18vh;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 200px;
+  width: 10vw;
 }
 
 .square:focus {
@@ -46,5 +82,42 @@ ol, ul {
 }
 
 .game-info {
-  margin-left: 20px;
+  margin-right: 2vw;
+}
+
+.game-board {
+  display: flex;
+  flex-direction: row;
+  align-self: center ;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  margin-right: 2vw;
+}
+
+.bomb {
+  -webkit-animation-name: fadeIn;
+  -webkit-animation-duration: 1s;
+  animation-name: fadeIn;
+  animation-duration: 1s;
+}
+
+@-webkit-keyframes fadeIn { 
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.3; }
+  60% { opacity: 0.5; }
+  80% { opacity: 0.9; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.3; }
+  60% { opacity: 0.5; }
+  80% { opacity: 0.9; }
+  100% { opacity: 1; }
 }
