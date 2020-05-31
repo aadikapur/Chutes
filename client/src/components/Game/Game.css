@@ -131,7 +131,7 @@ ol, ul {
     flex-direction: column;
   }
   .bigsquare {
-    width: 20vw;
+    width: 15vw;
   }
   .square {
     width: 15vw;
@@ -147,7 +147,6 @@ ol, ul {
   }
   .bigsquare {
     width: 15vw;
-    height: 15vw;
   }
   .square {
     width: 15vw;

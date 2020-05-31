@@ -6,7 +6,8 @@ import redParachute from './redParachute.png'
 import blueParachute from './blueParachute.png'
 import bomb from './bomb.jpg'
 import './Game.css';
-const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
+//const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
+const ENDPOINT = 'localhost:5000'
 let socket
 let redBlueBases
 
@@ -123,10 +124,10 @@ function Board({ socket }) {
     if (canIMove && !gameOver && !squares[i] && i === clickedSquare) {
       if (turnsToBomb === 0) {
         return <div className="bigsquare">
-          <button className="minisquare" onClick={() => handleClick(i, true)} >
+          <button id="parachute" className="minisquare" onClick={() => handleClick(i, true)} >
             <img src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
           </button>
-          <button className="minisquare" onClick={() => handleClick(i, false)} >
+          <button id="bomb" className="minisquare" onClick={() => handleClick(i, false)} >
             <img src={bomb} height="50" width="50" />
           </button>
         </div>
@@ -148,12 +149,12 @@ function Board({ socket }) {
         value = ""
       }
     }
-    return <Square
+    return <button className="square"
+      id={`square${i}`}
       onClick={() =>
         setClickedSquare(clickedSquare === -1 ? i : -1)
       }
-      value={value}
-    />
+    >{value}</button>
   }
 
   return (
@@ -200,6 +201,7 @@ function Board({ socket }) {
         {renderSquare(19)}
       </div>
       </div>
+      <p id="squares" style={{color: "#fff"}}>{squares.map(item => !item ? ',' : item)}</p>
     </div>
   );
 }
