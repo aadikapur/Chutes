@@ -6,8 +6,8 @@ import redParachute from './redParachute.png'
 import blueParachute from './blueParachute.png'
 import bomb from './bomb.jpg'
 import './Game.css';
-//const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
-const ENDPOINT = 'localhost:5000'
+const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
+//const ENDPOINT = 'localhost:5000'
 let socket
 let redBlueBases
 
