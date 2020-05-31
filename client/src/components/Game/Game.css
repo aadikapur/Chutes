@@ -137,18 +137,3 @@ ol, ul {
     width: 15vw;
   }
 }
-
-@media screen and (orientation: landscape) {
-  .game {
-    flex-direction: column;
-  }
-  .game-board {
-    flex-direction: column;
-  }
-  .bigsquare {
-    width: 15vw;
-  }
-  .square {
-    width: 15vw;
-  }
-}
