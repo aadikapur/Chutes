@@ -76,6 +76,25 @@ ol, ul {
   background: #ddd;
 }
 
+.redsquare {
+  background: #900;
+  border: 1px solid #000;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 18vh;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 10vw;
+}
+
+.redsquare:hover {
+  background: #d00;
+}
+
 .game {
   display: flex;
   flex-direction: row;
