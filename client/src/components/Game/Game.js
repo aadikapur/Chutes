@@ -82,6 +82,7 @@ function Board({ socket }) {
   const [gameOver, setGameEnded] = useState(false)
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
   const [isSoldierMoving, setSoldierMoving] = useState(false)
+  const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(4).fill(null))
 
   useEffect(() => {
     socket.emit('boardInitialized', (playerNum) => {
@@ -132,22 +133,25 @@ function Board({ socket }) {
       setTurnsToBomb(3)
     } else if (item === 'soldierWantsToMove') {
       setSoldierMoving(true)
-      getAdjacentSquares(i).forEach((adjacentSquare) => {
-        if (!squaresCopy[adjacentSquare]) {
-          squaresCopy[adjacentSquare] = `movableSquare ${i}`
-        }
+      const tempArray = Array(4)
+      getAdjacentSquares(i).forEach((adjacentSquare, index) => {
+        tempArray[index] = squaresCopy[adjacentSquare]
+        squaresCopy[adjacentSquare] = `movableSquare ${i}`
       })
+      setOverwritten(tempArray)
       setSquares(squaresCopy)
       return
     } else if (item === 'soldierDoesntWantToMove') {
       setSoldierMoving(false)
       setMovableSquaresJustTurnedOff(true)
-      squaresCopy.forEach((square, index) => {
-        if (squaresCopy[index] && squaresCopy[index].split(' ')[0] === 'movableSquare') {
-          squaresCopy[index] = null
+      squaresCopy.forEach(square => {
+        if (square && square.split(' ')[0] === 'movableSquare') {
+          getAdjacentSquares(Number(square.split(' ')[1])).forEach((adjacentSquare, index) => {
+            squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[index]
+          })
+          setSquares(squaresCopy)
         }
       })
-      setSquares(squaresCopy)
       return
     } else {
       if (item === 'parachute') {
@@ -160,9 +164,9 @@ function Board({ socket }) {
         setSoldierMoving(false)
         var originSquare = Number(squaresCopy[i].split(' ')[1])
         squaresCopy[originSquare] = null
-        getAdjacentSquares(originSquare).forEach(adjacentSquare => {
+        getAdjacentSquares(originSquare).forEach((adjacentSquare, index) => {
           if (squaresCopy[adjacentSquare].split(' ')[0] === 'movableSquare') {
-            squaresCopy[adjacentSquare] = null
+            squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[index]
           }
         })
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
@@ -275,7 +279,7 @@ function Board({ socket }) {
       </div>
       <div className="infoBar">
         <div className="leftInnerContainer">
-          {gameOver ? null : `You can plant a bomb in ${turnsToBomb} turns`}
+          {gameOver ? null : (turnsToBomb>0 ? `You can plant a bomb in ${turnsToBomb} turns` : 'You can plant a bomb now')}
         </div>
         <div className="rightInnerContainer">{'Bases Captured: ' + (!redBlueBases ? 0 : redBlueBases.filter(base => base === (iAmRed ? 1 : 2)).length)}</div>
       </div>
