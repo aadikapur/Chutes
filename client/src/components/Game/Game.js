@@ -7,6 +7,9 @@ import blueParachute from './blueParachute.png'
 import redSoldier from './redSoldier.png'
 import blueSoldier from './blueSoldier.png'
 import bomb from './bomb.png'
+import bunker from './bunker.png'
+import bunkerRed from './bunkerRed.png'
+import bunkerBlue from './bunkerBlue.png'
 import './Game.css';
 const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
 //const ENDPOINT = 'localhost:5000'
@@ -78,7 +81,7 @@ function Board({ socket }) {
   const [redIsNext, setNextRed] = useState(false)
   const [iAmRed, setMyself] = useState(true)
   const [canIMove, setCanIMove] = useState(false)
-  const [turnsToBomb, setTurnsToBomb] = useState(0)
+  const [turnsToBomb, setTurnsToBomb] = useState([0,0]) //[red,blue]
   const [gameOver, setGameEnded] = useState(false)
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
   const [isSoldierMoving, setSoldierMoving] = useState(false)
@@ -103,6 +106,7 @@ function Board({ socket }) {
     squares.forEach((item, index) => {
       if (item == 'Bomb') {
         moveHasntFinishedYet = true
+        setTurnsToBomb(iAmRed===canIMove ? [3,turnsToBomb[1]] : [turnsToBomb[0],3])
         setTimeout(() => {
           const squaresCopy = squares.slice()
           getAdjacentSquares(index).forEach((adjacentSquare) => {
@@ -130,7 +134,6 @@ function Board({ socket }) {
     if (item === 'bomb') {
       squaresCopy[i] = 'Bomb'
       setSquares(squaresCopy)
-      setTurnsToBomb(3)
     } else if (item === 'soldierWantsToMove') {
       setSoldierMoving(true)
       const tempArray = Array(4)
@@ -172,7 +175,11 @@ function Board({ socket }) {
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
         setSquares(squaresCopy)
       }
-      setTurnsToBomb((turns) => turns === 0 ? 0 : turns - 1)
+      const turnsToBombCopy = turnsToBomb.slice()
+      for (var j=0;j<2;j++) {
+        turnsToBombCopy[j] = turnsToBombCopy[j]===0 ? 0 : turnsToBombCopy[j]-1
+      }
+      setTurnsToBomb(turnsToBombCopy)
     }
     socket.emit('iMoved', { squares: squaresCopy })
   }
@@ -181,7 +188,7 @@ function Board({ socket }) {
     let value
     var squareCanBeClicked = canIMove && !gameOver && i === clickedSquare
     if (squareCanBeClicked && !squares[i]) {
-      if (turnsToBomb === 0) {
+      if (turnsToBomb[iAmRed?0:1] === 0) {
         return <div className="bigsquare">
           <button id="parachute" className="minisquare" onClick={() => handleClick(i, 'parachute')} >
             <img src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
@@ -279,7 +286,9 @@ function Board({ socket }) {
       </div>
       <div className="infoBar">
         <div className="leftInnerContainer">
-          {gameOver ? null : (turnsToBomb>0 ? `You can plant a bomb in ${turnsToBomb} turns` : 'You can plant a bomb now')}
+          {gameOver ? null : (turnsToBomb[iAmRed?0:1]>0 ? `You can plant a bomb in ${turnsToBomb[iAmRed?0:1]} turns` : 'You can plant a bomb now')}
+          <br/>
+          {gameOver ? null : (turnsToBomb[iAmRed?1:0]>0 ? `Opponent can plant a bomb in ${turnsToBomb[iAmRed?1:0]} turns` : 'Opponent can plant a bomb now')}
         </div>
         <div className="rightInnerContainer">{'Bases Captured: ' + (!redBlueBases ? 0 : redBlueBases.filter(base => base === (iAmRed ? 1 : 2)).length)}</div>
       </div>
@@ -303,13 +312,19 @@ const Base = ({ baseNumber, adjacentSquares }) => {
   }
   if (numberOfRedOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 1
-    return <button className="square" style={{ color: 'red' }}>X</button>
+    return <button className="square" >
+        <img src={bunkerRed} height="75" width="75" />
+      </button>
   } else if (numberOfBlueOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 2
-    return <button className="square" style={{ color: 'blue' }}>X</button>
+    return <button className="square" >
+        <img src={bunkerBlue} height="75" width="75" />
+      </button>
   } else {
     redBlueBases[baseNumber] = 0
-    return <button className="square" >X</button>
+    return <button className="square" >
+        <img src={bunker} height="75" width="75" />
+      </button>
   }
 }
 
