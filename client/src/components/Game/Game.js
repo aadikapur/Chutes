@@ -314,7 +314,7 @@ const Base = ({ baseNumber, adjacentSquares }) => {
 }
 
 function calculateWinner() {
-  const basesToWin = 3
+  const basesToWin = 4
   var redBases = 0
   var blueBases = 0
 
