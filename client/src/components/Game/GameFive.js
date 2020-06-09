@@ -10,13 +10,13 @@ import bomb from './bomb.png'
 import bunker from './bunker.png'
 import bunkerRed from './bunkerRed.png'
 import bunkerBlue from './bunkerBlue.png'
-import './Game.css';
+import './GameFive.css';
 const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
 //const ENDPOINT = 'localhost:5000'
 let socket
 let redBlueBases
 
-const Game = ({ location }) => {
+const GameFive = ({ location }) => {
   const [name, setName] = useState('')
   const [room, setRoom] = useState('')
   const [messages, setMessages] = useState('')
@@ -376,4 +376,4 @@ function getAdjacentSquares(i) {
   return adjacency[i]
 }
 
-export default Game;
+export default GameFive;

@@ -10,9 +10,6 @@ const Join = () => {
   function renderJoinArea() {
     if (gameType === 'none') {
       return <div>
-        <Link to={'/samescreen'}>
-          <button className="button mt-20" type="submit">Play on single screen</button>
-        </Link>
         <button className="button mt-20" type="submit" onClick={()=>setGameType('internet')}>Play over the internet</button>
       </div>
     }
@@ -39,8 +36,15 @@ const Join = () => {
           onClick={
             event => (!name || !room) ? event.preventDefault() : null
           }
-          to={`/game?name=${name}&room=${room}`}>
-          <button className="button mt-20" type="submit">Sign In</button>
+          to={`/gamefive?name=${name}&room=${room}`}>
+          <button className="button mt-20" type="submit">Start 5x5 Board Game</button>
+        </Link>
+        <Link
+          onClick={
+            event => (!name || !room) ? event.preventDefault() : null
+          }
+          to={`/gameseven?name=${name}&room=${room}`}>
+          <button className="button mt-20" type="submit">Start 7x7 Board Game</button>
         </Link>
         </div>
     }
