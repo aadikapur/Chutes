@@ -330,7 +330,10 @@ function Board({ socket }) {
           <br />
           {gameOver ? null : (turnsToBomb[iAmRed ? 1 : 0] > 0 ? `Opponent can plant a bomb in ${turnsToBomb[iAmRed ? 1 : 0]} turns` : 'Opponent can plant a bomb now')}
         </div>
-        <div className="rightInnerContainer">{'Bases Captured: ' + (!redBlueBases ? 0 : redBlueBases.filter(base => base === (iAmRed ? 1 : 2)).length)}</div>
+        <div className="rightInnerContainer">
+          {'Bases Captured: ' + (!redBlueBases ? 0 : redBlueBases.filter(base => base === (iAmRed ? 1 : 2)).length)} <br />
+          {'Opponent Bases: ' + (!redBlueBases ? 0 : redBlueBases.filter(base => base === (!iAmRed ? 1 : 2)).length)}
+        </div>
       </div>
     </div>
   );
