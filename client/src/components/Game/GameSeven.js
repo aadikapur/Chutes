@@ -117,7 +117,7 @@ function Board({ socket }) {
     squares.forEach((item, index) => {
       if (item == 'Bomb') {
         moveHasntFinishedYet = true
-        setTurnsToBomb(iAmRed === canIMove ? [3, turnsToBomb[1]] : [turnsToBomb[0], 3])
+        setTurnsToBomb(iAmRed === canIMove ? [4, turnsToBomb[1]] : [turnsToBomb[0], 4])
         setTimeout(() => {
           const squaresCopy = squares.slice()
           getAdjacentSquares(index).forEach((adjacentSquare) => {
@@ -372,7 +372,7 @@ const Base = ({ baseNumber, adjacentSquares }) => {
 }
 
 function calculateWinner() {
-  const basesToWin = 7
+  const basesToWin = 8
   var redBases = 0
   var blueBases = 0
 
