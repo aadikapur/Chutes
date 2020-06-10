@@ -15,31 +15,28 @@ io.on('connection', (socket) => {
   connectCounter++
   console.log(`${connectCounter} sockets are connected`)
 
-  socket.on('join', ({name, room}, afterJoin) => {
+  socket.on('join', ({room}, afterJoin) => {
     //add user
-    const {error, user} = addUser({id: socket.id, name, room})
+    const {error, user} = addUser({id: socket.id, room})
     //handle error
     if (error) return afterJoin(error)
-
-    //send welcome message back
-    socket.emit('message', {text: `Welcome ${user.name}`})
-    //send message to other sockets
-    socket.broadcast.to(user.room).emit('message', {text: `${user.name} has joined`})
-
     //join room
     socket.join(user.room)
-
     //invokes frontend function that goes after this
     afterJoin()
   })
 
   socket.on('boardInitialized', (afterInit) => {
-    afterInit(getUser(socket.id).playerNum)
+    const user = getUser(socket.id)
+    const playerNum = user.playerNum
+    if (playerNum === 2) {
+      socket.broadcast.to(user.room).emit('blueHasJoined')
+    }
+    afterInit(playerNum)
   })
 
   socket.on('iMoved', ({squares}) => {
     const user = getUser(socket.id)
-    console.log(`user ${user.name} squares ${squares}`)
     socket.broadcast.to(user.room).emit('otherGuyMoved', {squares})
   })
 
