@@ -51,16 +51,16 @@ const GameSeven = ({ location }) => {
     <div className="game">
       <div className="sidepanel">
         <div className="paneltop">
-          <b>Room Information</b><br/><br/>
+          <b>Room Information</b><br /><br />
           <div>Name: {name}</div>
           <div>Room: {room}</div>
           <p style={{ whiteSpace: 'pre' }}>{messages}</p>
           {redirect ? <Redirect to='/' /> : null}
         </div>
         <div className="panelbottom">
-          <b>How to Play</b><br /><br/>
-          Capture bases by surrounding them.<br/>
-          First player to capture 3 bases wins.<br/><br/>
+          <b>How to Play</b><br /><br />
+          Capture bases by surrounding them.<br />
+          First player to capture 3 bases wins.<br /><br />
           Each turn you can do one of 4 actions:
           <ul>
             <li>Place a parachute</li>
@@ -76,12 +76,23 @@ const GameSeven = ({ location }) => {
 }
 
 function Board({ socket }) {
-  const [squares, setSquares] = useState(Array(33).fill(null))
+  const [squares, setSquares] = useState(() => {
+    const redsquares = [0, 2, 13, 19, 30, 32]
+    const bluesquares = [1, 3, 9, 23, 29, 31]
+    const squaresCopy = Array(33).fill(null)
+    redsquares.forEach(item => {
+      squaresCopy[item] = 'RedPara'
+    })
+    bluesquares.forEach(item => {
+      squaresCopy[item] = 'BluePara'
+    })
+    return squaresCopy
+  })
   const [clickedSquare, setClickedSquare] = useState(-1)
   const [redIsNext, setNextRed] = useState(false)
   const [iAmRed, setMyself] = useState(true)
   const [canIMove, setCanIMove] = useState(false)
-  const [turnsToBomb, setTurnsToBomb] = useState([0,0]) //[red,blue]
+  const [turnsToBomb, setTurnsToBomb] = useState([0, 0]) //[red,blue]
   const [gameOver, setGameEnded] = useState(false)
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
   const [isSoldierMoving, setSoldierMoving] = useState(false)
@@ -106,7 +117,7 @@ function Board({ socket }) {
     squares.forEach((item, index) => {
       if (item == 'Bomb') {
         moveHasntFinishedYet = true
-        setTurnsToBomb(iAmRed===canIMove ? [3,turnsToBomb[1]] : [turnsToBomb[0],3])
+        setTurnsToBomb(iAmRed === canIMove ? [3, turnsToBomb[1]] : [turnsToBomb[0], 3])
         setTimeout(() => {
           const squaresCopy = squares.slice()
           getAdjacentSquares(index).forEach((adjacentSquare) => {
@@ -176,8 +187,8 @@ function Board({ socket }) {
         setSquares(squaresCopy)
       }
       const turnsToBombCopy = turnsToBomb.slice()
-      for (var j=0;j<2;j++) {
-        turnsToBombCopy[j] = turnsToBombCopy[j]===0 ? 0 : turnsToBombCopy[j]-1
+      for (var j = 0; j < 2; j++) {
+        turnsToBombCopy[j] = turnsToBombCopy[j] === 0 ? 0 : turnsToBombCopy[j] - 1
       }
       setTurnsToBomb(turnsToBombCopy)
     }
@@ -188,7 +199,7 @@ function Board({ socket }) {
     let value
     var squareCanBeClicked = canIMove && !gameOver && i === clickedSquare
     if (squareCanBeClicked && !squares[i]) {
-      if (turnsToBomb[iAmRed?0:1] === 0) {
+      if (turnsToBomb[iAmRed ? 0 : 1] === 0) {
         return <div className="bigsquare">
           <button id="parachute" className="minisquare" onClick={() => handleClick(i, 'parachute')} >
             <img src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
@@ -250,13 +261,13 @@ function Board({ socket }) {
         }
       </div>
       <div className="board-row">
-        <button className="square"/>
+        <button className="square" />
         {renderSquare(0)}
         <Base baseNumber={0} adjacentSquares={[squares[0], squares[5], squares[1]]} />
         {renderSquare(1)}
         <Base baseNumber={1} adjacentSquares={[squares[1], squares[7], squares[2]]} />
         {renderSquare(2)}
-        <button className="square"/>
+        <button className="square" />
       </div>
       <div className="board-row">
         {renderSquare(3)}
@@ -304,20 +315,20 @@ function Board({ socket }) {
         {renderSquare(29)}
       </div>
       <div className="board-row">
-        <button className="square"/>
+        <button className="square" />
         {renderSquare(30)}
         <Base baseNumber={10} adjacentSquares={[squares[25], squares[30], squares[31]]} />
         {renderSquare(31)}
         <Base baseNumber={11} adjacentSquares={[squares[27], squares[31], squares[32]]} />
         {renderSquare(32)}
-        <button className="square"/>
+        <button className="square" />
       </div>
 
       <div className="infoBar">
         <div className="leftInnerContainer">
-          {gameOver ? null : (turnsToBomb[iAmRed?0:1]>0 ? `You can plant a bomb in ${turnsToBomb[iAmRed?0:1]} turns` : 'You can plant a bomb now')}
-          <br/>
-          {gameOver ? null : (turnsToBomb[iAmRed?1:0]>0 ? `Opponent can plant a bomb in ${turnsToBomb[iAmRed?1:0]} turns` : 'Opponent can plant a bomb now')}
+          {gameOver ? null : (turnsToBomb[iAmRed ? 0 : 1] > 0 ? `You can plant a bomb in ${turnsToBomb[iAmRed ? 0 : 1]} turns` : 'You can plant a bomb now')}
+          <br />
+          {gameOver ? null : (turnsToBomb[iAmRed ? 1 : 0] > 0 ? `Opponent can plant a bomb in ${turnsToBomb[iAmRed ? 1 : 0]} turns` : 'Opponent can plant a bomb now')}
         </div>
         <div className="rightInnerContainer">{'Bases Captured: ' + (!redBlueBases ? 0 : redBlueBases.filter(base => base === (iAmRed ? 1 : 2)).length)}</div>
       </div>
@@ -342,18 +353,18 @@ const Base = ({ baseNumber, adjacentSquares }) => {
   if (numberOfRedOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 1
     return <button className="square" >
-        <img src={bunkerRed} height="75" width="75" />
-      </button>
+      <img src={bunkerRed} height="75" width="75" />
+    </button>
   } else if (numberOfBlueOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 2
     return <button className="square" >
-        <img src={bunkerBlue} height="75" width="75" />
-      </button>
+      <img src={bunkerBlue} height="75" width="75" />
+    </button>
   } else {
     redBlueBases[baseNumber] = 0
     return <button className="square" >
-        <img src={bunker} height="75" width="75" />
-      </button>
+      <img src={bunker} height="75" width="75" />
+    </button>
   }
 }
 
@@ -385,35 +396,36 @@ function getAdjacentSquares(i) {
     [6],
     [8],
     [4],
-    [0,3,5,10],
-    [4,6],
-    [1,5,7,11],
-    [6,8],
-    [2,7,9,12],
+    [0, 3, 5, 10],
+    [4, 6],
+    [1, 5, 7, 11],
+    [6, 8],
+    [2, 7, 9, 12],
     [8],
-    [4,14],
-    [6,16],
-    [8,18],
+    [4, 14],
+    [6, 16],
+    [8, 18],
     [14],
-    [10,13,15,20],
-    [14,16],
-    [11,15,17,21],
-    [16,18],
-    [12,17,19,22],
+    [10, 13, 15, 20],
+    [14, 16],
+    [11, 15, 17, 21],
+    [16, 18],
+    [12, 17, 19, 22],
     [18],
-    [14,24],
-    [16,26],
-    [18,28],
+    [14, 24],
+    [16, 26],
+    [18, 28],
     [24],
-    [20,23,25,30],
-    [24,26],
-    [21,25,27,31],
-    [26,28],
-    [22,27,29,32],
+    [20, 23, 25, 30],
+    [24, 26],
+    [21, 25, 27, 31],
+    [26, 28],
+    [22, 27, 29, 32],
+    [28],
     [24],
     [26],
     [28]
-    ]
+  ]
   return adjacency[i]
 }
 
