@@ -10,25 +10,23 @@ import bomb from './bomb.png'
 import bunker from './bunker.png'
 import bunkerRed from './bunkerRed.png'
 import bunkerBlue from './bunkerBlue.png'
-import './GameFive.css';
+import './Game.css';
 const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
 //const ENDPOINT = 'localhost:5000'
 let socket
 let redBlueBases
 
 const GameFive = ({ location }) => {
-  const [name, setName] = useState('')
   const [room, setRoom] = useState('')
   const [messages, setMessages] = useState('')
   const [redirect, setRedirect] = useState(false)
   const [socketInitialized, setSocketInitialized] = useState(false)
 
   useEffect(() => {
-    const { name, room } = queryString.parse(location.search)
-    setName(name)
+    const { room } = queryString.parse(location.search)
     setRoom(room)
     socket = io(ENDPOINT)
-    socket.emit('join', { name, room }, (error) => {
+    socket.emit('join', { room }, (error) => {
       if (error) {
         setRedirect(true)
         alert(error)
@@ -49,27 +47,7 @@ const GameFive = ({ location }) => {
 
   return (
     <div className="game">
-      <div className="sidepanel">
-        <div className="paneltop">
-          <b>Room Information</b><br/><br/>
-          <div>Name: {name}</div>
-          <div>Room: {room}</div>
-          <p style={{ whiteSpace: 'pre' }}>{messages}</p>
-          {redirect ? <Redirect to='/' /> : null}
-        </div>
-        <div className="panelbottom">
-          <b>How to Play</b><br /><br/>
-          Capture bases by surrounding them.<br/>
-          First player to capture 3 bases wins.<br/><br/>
-          Each turn you can do one of 4 actions:
-          <ul>
-            <li>Place a parachute</li>
-            <li>Place a soldier</li>
-            <li>Move a soldier</li>
-            <li>Bomb all units next to a tile</li>
-          </ul>
-        </div>
-      </div>
+      {redirect ? <Redirect to='/' /> : null}
       {socketInitialized ? <Board socket={socket} /> : null}
     </div>
   );
@@ -86,11 +64,18 @@ function Board({ socket }) {
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
   const [isSoldierMoving, setSoldierMoving] = useState(false)
   const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(4).fill(null))
+  const [waitingForBlue, setWaitingForBlue] = useState(false)
 
   useEffect(() => {
     socket.emit('boardInitialized', (playerNum) => {
       setMyself(playerNum === 1 ? true : false)
       setCanIMove(playerNum === 1 ? true : false)
+      if (playerNum === 1) {
+        setWaitingForBlue(true)
+        socket.on('blueHasJoined', () => {
+          setWaitingForBlue(false)
+        })
+      }
     })
     socket.on('otherGuyMoved', ({ squares }) => {
       setSquares(squares)
@@ -241,6 +226,7 @@ function Board({ socket }) {
 
   return (
     <div className="board">
+      {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Player 2 to join...</div></div> : null}
       <div className="infoBar">
         <div className="leftInnerContainer">{`Team ${iAmRed ? 'Red' : 'Blue'}`}</div>
         {gameOver ?

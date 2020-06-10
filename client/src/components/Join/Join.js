@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import './Join.css'
 
 const Join = () => {
-  const [name, setName] = useState('')
   const [room, setRoom] = useState('')
   const [gameType, setGameType] = useState('none')
 
@@ -17,15 +16,6 @@ const Join = () => {
       return <div>
         <div>
           <input
-            placeholder="Username"
-            className="joinInput"
-            type="text"
-            onChange={
-              (event) => setName(event.target.value)
-            } />
-        </div>
-        <div>
-          <input
             placeholder="Room Name"
             className="joinInput mt-20"
             type="text"
@@ -34,16 +24,16 @@ const Join = () => {
         </div>
         <Link
           onClick={
-            event => (!name || !room) ? event.preventDefault() : null
+            event => (!room) ? event.preventDefault() : null
           }
-          to={`/gamefive?name=${name}&room=${room}`}>
+          to={`/gamefive?room=${room}`}>
           <button className="button mt-20" type="submit">Start 5x5 Board Game</button>
         </Link>
         <Link
           onClick={
-            event => (!name || !room) ? event.preventDefault() : null
+            event => (!room) ? event.preventDefault() : null
           }
-          to={`/gameseven?name=${name}&room=${room}`}>
+          to={`/gameseven?room=${room}`}>
           <button className="button mt-20" type="submit">Start 7x7 Board Game</button>
         </Link>
         </div>
