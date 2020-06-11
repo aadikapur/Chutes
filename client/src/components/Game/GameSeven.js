@@ -55,8 +55,8 @@ const GameSeven = ({ location }) => {
 
 function Board({ socket }) {
   const [squares, setSquares] = useState(() => {
-    const redsquares = [0, 2, 13, 19, 30, 32]
-    const bluesquares = [1, 3, 9, 23, 29, 31]
+    const redsquares = [0, 1, 2, 30, 31, 32]
+    const bluesquares = [3, 9, 13, 19, 23, 29]
     const squaresCopy = Array(33).fill(null)
     redsquares.forEach(item => {
       squaresCopy[item] = 'RedPara'
@@ -247,13 +247,13 @@ function Board({ socket }) {
         }
       </div>
       <div className="board-row">
-        <button className="square" />
+        <button className="noclicksquare" />
         {renderSquare(0)}
         <Base baseNumber={0} adjacentSquares={[squares[0], squares[5], squares[1]]} />
         {renderSquare(1)}
         <Base baseNumber={1} adjacentSquares={[squares[1], squares[7], squares[2]]} />
         {renderSquare(2)}
-        <button className="square" />
+        <button className="noclicksquare" />
       </div>
       <div className="board-row">
         {renderSquare(3)}
@@ -301,13 +301,13 @@ function Board({ socket }) {
         {renderSquare(29)}
       </div>
       <div className="board-row">
-        <button className="square" />
+        <button className="noclicksquare" />
         {renderSquare(30)}
         <Base baseNumber={10} adjacentSquares={[squares[25], squares[30], squares[31]]} />
         {renderSquare(31)}
         <Base baseNumber={11} adjacentSquares={[squares[27], squares[31], squares[32]]} />
         {renderSquare(32)}
-        <button className="square" />
+        <button className="noclicksquare" />
       </div>
 
       <div className="infoBar">

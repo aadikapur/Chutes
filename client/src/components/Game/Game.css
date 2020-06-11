@@ -100,6 +100,21 @@ ol, ul {
   outline: none;
 }
 
+.noclicksquare {
+  background: rgb(34,34,34);
+  border: 2px solid rgb(34,34,34);
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 12vh;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 10vw;
+}
+
 .kbd-navigation .square:focus {
   background: #ddd;
 }
