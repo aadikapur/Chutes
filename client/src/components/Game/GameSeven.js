@@ -10,6 +10,8 @@ import bomb from './bomb.png'
 import bunker from './bunker.png'
 import bunkerRed from './bunkerRed.png'
 import bunkerBlue from './bunkerBlue.png'
+import redTrench from './redTrench.png'
+import blueTrench from './blueTrench.png'
 import './Game.css';
 const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
 //const ENDPOINT = 'localhost:5000'
@@ -106,7 +108,11 @@ function Board({ socket }) {
         setTimeout(() => {
           const squaresCopy = squares.slice()
           getAdjacentSquares(index).forEach((adjacentSquare) => {
-            squaresCopy[adjacentSquare] = null
+            if (squaresCopy[adjacentSquare] && squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench') {
+              squaresCopy[adjacentSquare] = squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[0].concat('Para')
+            } else {
+              squaresCopy[adjacentSquare] = null
+            }
           })
           squaresCopy[index] = null
           setSquares(squaresCopy)
@@ -170,6 +176,9 @@ function Board({ socket }) {
         })
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
         setSquares(squaresCopy)
+      } else if (item === 'trench') {
+        squaresCopy[i] = redIsNext ? 'RedTrench' : 'BlueTrench'
+        setSquares(squaresCopy)
       }
       const turnsToBombCopy = turnsToBomb.slice()
       for (var j = 0; j < 2; j++) {
@@ -202,8 +211,11 @@ function Board({ socket }) {
       }
     } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedPara' || !iAmRed && squares[i] === 'BluePara')) {
       return <div className="bigsquare">
-        <button className="minisquare" onClick={() => handleClick(i, 'soldier')} style={{ height: "100%" }}>
+        <button className="minisquare" onClick={() => handleClick(i, 'soldier')} >
           <img src={iAmRed ? redSoldier : blueSoldier} height="50" width="50" />
+        </button>
+        <button className="minisquare" onClick={() => handleClick(i, 'trench')} >
+          <img src={iAmRed ? redTrench : blueTrench} height="50" width="50" />
         </button>
       </div>
     } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedSoldier' || !iAmRed && squares[i] === 'BlueSoldier')) {
@@ -220,6 +232,10 @@ function Board({ socket }) {
         value = <img src={redSoldier} height="50" width="50" />
       } else if (squares[i] === 'BlueSoldier') {
         value = <img src={blueSoldier} height="50" width="50" />
+      } else if (squares[i] === 'RedTrench') {
+        value = <img src={redTrench} height="50" width="50" />
+      } else if (squares[i] === 'BlueTrench') {
+        value = <img src={blueTrench} height="50" width="50" />
       } else if (squares[i] === 'Bomb') {
         value = <img className="bomb" src={bomb} height="50" width="50" />
       } else {

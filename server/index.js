@@ -37,6 +37,7 @@ io.on('connection', (socket) => {
 
   socket.on('iMoved', ({squares}) => {
     const user = getUser(socket.id)
+    console.log(squares)
     socket.broadcast.to(user.room).emit('otherGuyMoved', {squares})
   })
 
