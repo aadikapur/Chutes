@@ -76,7 +76,7 @@ function Board({ socket }) {
   const [gameOver, setGameEnded] = useState(false)
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
   const [isSoldierMoving, setSoldierMoving] = useState(false)
-  const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(4).fill(null))
+  const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(33).fill(null))
   const [waitingForBlue, setWaitingForBlue] = useState(false)
 
   useEffect(() => {
@@ -138,10 +138,10 @@ function Board({ socket }) {
       setSquares(squaresCopy)
     } else if (item === 'soldierWantsToMove') {
       setSoldierMoving(true)
-      const tempArray = Array(4)
-      getAdjacentSquares(i).forEach((adjacentSquare, index) => {
+      const tempArray = Array(33).fill(null)
+      getAdjacentSquares(i).forEach(adjacentSquare => {
         if (!squaresCopy[adjacentSquare] || !(squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench')) {
-          tempArray[index] = squaresCopy[adjacentSquare]
+          tempArray[adjacentSquare] = squaresCopy[adjacentSquare]
           squaresCopy[adjacentSquare] = `movableSquare ${i}`
         }
       })
@@ -151,11 +151,9 @@ function Board({ socket }) {
     } else if (item === 'soldierDoesntWantToMove') {
       setSoldierMoving(false)
       setMovableSquaresJustTurnedOff(true)
-      squaresCopy.forEach(square => {
+      squaresCopy.forEach((square, index) => {
         if (square && square.split(' ')[0] === 'movableSquare') {
-          getAdjacentSquares(Number(square.split(' ')[1])).forEach((adjacentSquare, index) => {
-            squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[index]
-          })
+          squaresCopy[index] = tempMovableSquaresOverwrite[index]
           setSquares(squaresCopy)
         }
       })
@@ -171,9 +169,9 @@ function Board({ socket }) {
         setSoldierMoving(false)
         var originSquare = Number(squaresCopy[i].split(' ')[1])
         squaresCopy[originSquare] = null
-        getAdjacentSquares(originSquare).forEach((adjacentSquare, index) => {
+        getAdjacentSquares(originSquare).forEach(adjacentSquare => {
           if (squaresCopy[adjacentSquare].split(' ')[0] === 'movableSquare') {
-            squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[index]
+            squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[adjacentSquare]
           }
         })
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
