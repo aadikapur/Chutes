@@ -140,8 +140,10 @@ function Board({ socket }) {
       setSoldierMoving(true)
       const tempArray = Array(4)
       getAdjacentSquares(i).forEach((adjacentSquare, index) => {
-        tempArray[index] = squaresCopy[adjacentSquare]
-        squaresCopy[adjacentSquare] = `movableSquare ${i}`
+        if (!squaresCopy[adjacentSquare] || !(squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench')) {
+          tempArray[index] = squaresCopy[adjacentSquare]
+          squaresCopy[adjacentSquare] = `movableSquare ${i}`
+        }
       })
       setOverwritten(tempArray)
       setSquares(squaresCopy)
