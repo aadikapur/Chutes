@@ -45,7 +45,7 @@ const GameSeven = ({ location }) => {
       socket.emit('disconnect')
       socket.close()
     }
-  }, [ENDPOINT, location.search])
+  }, [location.search])
 
   useEffect(() => {
     socket.on('message', (message) => {
@@ -99,7 +99,7 @@ function Board({ socket }) {
     socket.on('otherGuyMoved', ({ squares }) => {
       setSquares(squares)
     })
-  }, [])
+  }, [socket])
 
   useEffect(() => {
     var moveHasntFinishedYet = false
@@ -108,7 +108,7 @@ function Board({ socket }) {
       return
     }
     squares.forEach((item, index) => {
-      if (item == 'Bomb') {
+      if (item === 'Bomb') {
         moveHasntFinishedYet = true
         setTurnsToBomb(iAmRed === canIMove ? [4, turnsToBomb[1]] : [turnsToBomb[0], 4])
         setTimeout(() => {
@@ -129,11 +129,11 @@ function Board({ socket }) {
       }
     })
     if (moveHasntFinishedYet) { return; }
-    setCanIMove(!canIMove)
+    setCanIMove(c => !c)
     if (calculateWinner()) {
       setGameEnded(true)
     }
-    setNextRed(!redIsNext)
+    setNextRed(r => !r)
   }, [squares])
 
   const handleClick = (i, item) => {
@@ -162,7 +162,7 @@ function Board({ socket }) {
         tempArray[j] = squaresCopy[j]
         squaresCopy[j] = `movableSquare ${j} tank`
         getAdjacentSquares(j).forEach(twoFarSquareIndex => {
-          if (twoFarSquareIndex != i) {
+          if (twoFarSquareIndex !== i) {
             tempArray[twoFarSquareIndex] = squaresCopy[twoFarSquareIndex]
             squaresCopy[twoFarSquareIndex] = `movableSquare ${i} tank`
           }
@@ -202,7 +202,7 @@ function Board({ socket }) {
         setSquares(squaresCopy)
       } else if (item === 'soldierMoved') {
         setMovableSquareViewOpen(false)
-        var originSquare = Number(squaresCopy[i].split(' ')[1])
+        let originSquare = Number(squaresCopy[i].split(' ')[1])
         squaresCopy[originSquare] = null
         getAdjacentSquares(originSquare).forEach(adjacentSquare => {
           if (squaresCopy[adjacentSquare].split(' ')[0] === 'movableSquare') {
@@ -213,7 +213,7 @@ function Board({ socket }) {
         setSquares(squaresCopy)
       } else if (item === 'tankMoved') {
         setMovableSquareViewOpen(false)
-        var originSquare = Number(squaresCopy[i].split(' ')[1])
+        let originSquare = Number(squaresCopy[i].split(' ')[1])
         squaresCopy.forEach((potentialMovableSquare,movableSquareIndex) => {
           if (potentialMovableSquare && potentialMovableSquare.split(' ')[0] === 'movableSquare') {
             squaresCopy[movableSquareIndex] = tempMovableSquaresOverwrite[movableSquareIndex]
@@ -228,7 +228,7 @@ function Board({ socket }) {
         setSquares(squaresCopy)
       } else if (item === 'spyMoved') {
         setMovableSquareViewOpen(false)
-        var originSquare = Number(squaresCopy[i].split(' ')[1])
+        let originSquare = Number(squaresCopy[i].split(' ')[1])
         getAdjacentSquares(originSquare).forEach(adjacentSquare => {
           if (squaresCopy[adjacentSquare] && squaresCopy[adjacentSquare].split(' ')[0] === 'movableSquare') {
             squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[adjacentSquare]
@@ -262,46 +262,46 @@ function Board({ socket }) {
       if (turnsToBomb[iAmRed ? 0 : 1] === 0) {
         return <div className="bigsquare">
           <button id="parachute" className="minisquare" onClick={() => handleClick(i, 'parachute')} >
-            <img src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
+            <img alt="parachute button" src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
           </button>
           <button id="bomb" className="minisquare" onClick={() => handleClick(i, 'bomb')} >
-            <img src={bomb} height="50" width="50" />
+            <img alt="bomb button" src={bomb} height="50" width="50" />
           </button>
         </div>
       } else {
         value = <div className="bigsquare">
           <button className="minisquare" onClick={() => handleClick(i, 'parachute')} style={{ height: "100%" }}>
-            <img src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
+            <img alt="parachute button" src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
           </button>
         </div>
       }
-    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedPara' || !iAmRed && squares[i] === 'BluePara')) {
+    } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedPara') || (!iAmRed && squares[i] === 'BluePara'))) {
       return <div className="bigsquare">
         <button className="minisquare" onClick={() => handleClick(i, 'soldier')} >
-          <img src={iAmRed ? redSoldier : blueSoldier} height="50" width="50" />
+          <img alt="soldier button" src={iAmRed ? redSoldier : blueSoldier} height="50" width="50" />
         </button>
         <button className="minisquare" onClick={() => handleClick(i, 'trench')} >
-          <img src={iAmRed ? redTrench : blueTrench} height="50" width="50" />
+          <img alt="trench button" src={iAmRed ? redTrench : blueTrench} height="50" width="50" />
         </button>
       </div>
-    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedSoldier' || !iAmRed && squares[i] === 'BlueSoldier')) {
+    } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedSoldier') || (!iAmRed && squares[i] === 'BlueSoldier'))) {
       return <div className="bigsquare">
         <button className="minisquare" onClick={() => handleClick(i, 'soldierWantsToMove')} >
-          <img src={iAmRed ? redArrow : blueArrow} height="50" width="50" />
+          <img alt="arrow" src={iAmRed ? redArrow : blueArrow} height="50" width="50" />
         </button>
         <button className="minisquare" onClick={() => handleClick(i, 'tank')} >
-          <img src={iAmRed ? redTank : blueTank} height="50" width="50" />
+          <img alt="tank" src={iAmRed ? redTank : blueTank} height="50" width="50" />
         </button>
       </div>
-    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedTrench' || !iAmRed && squares[i] === 'BlueTrench')) {
+    } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedTrench') || (!iAmRed && squares[i] === 'BlueTrench'))) {
       return <div className="bigsquare">
         <button className="minisquare" onClick={() => handleClick(i, 'spy')} style={{ height: "100%" }} >
-          <img src={iAmRed ? redSpy : blueSpy} height="50" width="50" />
+          <img alt="spy" src={iAmRed ? redSpy : blueSpy} height="50" width="50" />
         </button>
       </div>
-    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedSpy' || !iAmRed && squares[i] === 'BlueSpy')) {
+    } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedSpy') || (!iAmRed && squares[i] === 'BlueSpy'))) {
       handleClick(i, 'spyAction')
-    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedTank' || !iAmRed && squares[i] === 'BlueTank')) {
+    } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedTank') || (!iAmRed && squares[i] === 'BlueTank'))) {
       handleClick(i, 'tankWantsToMove')
     } else if (canIMove && !gameOver && squares[i] && squares[i].split(' ')[0] === 'movableSquare') {
       if (squares[i].split(' ')[2] === 'soldier') {
@@ -313,27 +313,27 @@ function Board({ socket }) {
       }
     } else {
       if (squares[i] === 'RedPara') {
-        value = <img src={redParachute} height="50" width="50" />
+        value = <img alt="" src={redParachute} height="50" width="50" />
       } else if (squares[i] === 'BluePara') {
-        value = <img src={blueParachute} height="50" width="50" />
+        value = <img alt="" src={blueParachute} height="50" width="50" />
       } else if (squares[i] === 'RedSoldier') {
-        value = <img src={redSoldier} height="50" width="50" />
+        value = <img alt="" src={redSoldier} height="50" width="50" />
       } else if (squares[i] === 'BlueSoldier') {
-        value = <img src={blueSoldier} height="50" width="50" />
+        value = <img alt="" src={blueSoldier} height="50" width="50" />
       } else if (squares[i] === 'RedTrench') {
-        value = <img src={redTrench} height="50" width="50" />
+        value = <img alt="" src={redTrench} height="50" width="50" />
       } else if (squares[i] === 'BlueTrench') {
-        value = <img src={blueTrench} height="50" width="50" />
+        value = <img alt="" src={blueTrench} height="50" width="50" />
       } else if (squares[i] === 'RedTank') {
-        value = <img src={redTank} height="50" width="50" />
+        value = <img alt="" src={redTank} height="50" width="50" />
       } else if (squares[i] === 'BlueTank') {
-        value = <img src={blueTank} height="50" width="50" />
+        value = <img alt="" src={blueTank} height="50" width="50" />
       } else if (squares[i] === 'RedSpy') {
-        value = <img src={redSpy} height="50" width="50" />
+        value = <img alt="" src={redSpy} height="50" width="50" />
       } else if (squares[i] === 'BlueSpy') {
-        value = <img src={blueSpy} height="50" width="50" />
+        value = <img alt="" src={blueSpy} height="50" width="50" />
       } else if (squares[i] === 'Bomb') {
-        value = <img className="bomb" src={bomb} height="50" width="50" />
+        value = <img alt="" className="bomb" src={bomb} height="50" width="50" />
       } else {
         value = ""
       }
@@ -353,7 +353,7 @@ function Board({ socket }) {
       <div className="infoBar">
         <div className="leftInnerContainer">{`Team ${iAmRed ? 'Red' : 'Blue'}`}</div>
         {gameOver ?
-          <div className="rightInnerContainer">{(calculateWinner() === 'Red' && iAmRed || calculateWinner() === 'Blue' && !iAmRed) ? 'You Won!' : 'You Lost'}</div>
+          <div className="rightInnerContainer">{((calculateWinner() === 'Red' && iAmRed) || (calculateWinner() === 'Blue' && !iAmRed)) ? 'You Won!' : 'You Lost'}</div>
           :
           <div className="rightInnerContainer">{'Next Player: ' + (redIsNext ? 'Red' : 'Blue')}</div>
         }
@@ -454,17 +454,17 @@ const Base = ({ baseNumber, adjacentSquares }) => {
   if (numberOfRedOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 1
     return <button className="square" >
-      <img src={bunkerRed} height="75" width="75" />
+      <img alt="" src={bunkerRed} height="75" width="75" />
     </button>
   } else if (numberOfBlueOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 2
     return <button className="square" >
-      <img src={bunkerBlue} height="75" width="75" />
+      <img alt="" src={bunkerBlue} height="75" width="75" />
     </button>
   } else {
     redBlueBases[baseNumber] = 0
     return <button className="square" >
-      <img src={bunker} height="75" width="75" />
+      <img alt="" src={bunker} height="75" width="75" />
     </button>
   }
 }

@@ -26,13 +26,6 @@ const Join = () => {
           onClick={
             event => (!room) ? event.preventDefault() : null
           }
-          to={`/gamefive?room=${room}`}>
-          <button className="button mt-20" type="submit">Start 5x5 Board Game</button>
-        </Link>
-        <Link
-          onClick={
-            event => (!room) ? event.preventDefault() : null
-          }
           to={`/gameseven?room=${room}`}>
           <button className="button mt-20" type="submit">Start 7x7 Board Game</button>
         </Link>
