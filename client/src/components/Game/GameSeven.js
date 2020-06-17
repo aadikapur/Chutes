@@ -26,7 +26,6 @@ let redBlueBases
 
 const GameSeven = ({ location }) => {
   const [room, setRoom] = useState('')
-  const [messages, setMessages] = useState('')
   const [redirect, setRedirect] = useState(false)
   const [socketInitialized, setSocketInitialized] = useState(false)
 
@@ -47,21 +46,15 @@ const GameSeven = ({ location }) => {
     }
   }, [location.search])
 
-  useEffect(() => {
-    socket.on('message', (message) => {
-      setMessages([...messages, "\n", message.text])
-    })
-  })
-
   return (
     <div className="game">
       {redirect ? <Redirect to='/' /> : null}
-      {socketInitialized ? <Board socket={socket} /> : null}
+      {socketInitialized ? <Board socket={socket} room={room} /> : null}
     </div>
   );
 }
 
-function Board({ socket }) {
+function Board({ socket, room }) {
   const [squares, setSquares] = useState(() => {
     const redsquares = [0, 1, 2, 30, 31, 32]
     const bluesquares = [3, 9, 13, 19, 23, 29]
@@ -351,11 +344,12 @@ function Board({ socket }) {
     <div className="board">
       {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Player 2 to join...</div></div> : null}
       <div className="infoBar">
-        <div className="leftInnerContainer">{`Team ${iAmRed ? 'Red' : 'Blue'}`}</div>
+        <div className="topInnerContainer">Room: {room}</div>
+        <div className="topInnerContainer">{`Team: ${iAmRed ? 'Red' : 'Blue'}`}</div>
         {gameOver ?
-          <div className="rightInnerContainer">{((calculateWinner() === 'Red' && iAmRed) || (calculateWinner() === 'Blue' && !iAmRed)) ? 'You Won!' : 'You Lost'}</div>
+          <div className="topInnerContainer">{((calculateWinner() === 'Red' && iAmRed) || (calculateWinner() === 'Blue' && !iAmRed)) ? 'You Won!' : 'You Lost'}</div>
           :
-          <div className="rightInnerContainer">{'Next Player: ' + (redIsNext ? 'Red' : 'Blue')}</div>
+          <div className="topInnerContainer">{'Next Player: ' + (redIsNext ? 'Red' : 'Blue')}</div>
         }
       </div>
       <div className="board-row">
