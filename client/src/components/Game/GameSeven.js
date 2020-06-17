@@ -12,6 +12,12 @@ import bunkerRed from './bunkerRed.png'
 import bunkerBlue from './bunkerBlue.png'
 import redTrench from './redTrench.png'
 import blueTrench from './blueTrench.png'
+import redTank from './redTank.png'
+import blueTank from './blueTank.png'
+import redArrow from './redArrow.png'
+import blueArrow from './blueArrow.png'
+import redSpy from './redSpy.png'
+import blueSpy from './blueSpy.png'
 import './Game.css';
 const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
 //const ENDPOINT = 'localhost:5000'
@@ -75,7 +81,7 @@ function Board({ socket }) {
   const [turnsToBomb, setTurnsToBomb] = useState([0, 0]) //[red,blue]
   const [gameOver, setGameEnded] = useState(false)
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
-  const [isSoldierMoving, setSoldierMoving] = useState(false)
+  const [isMovableSquareViewOpen, setMovableSquareViewOpen] = useState(false)
   const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(33).fill(null))
   const [waitingForBlue, setWaitingForBlue] = useState(false)
 
@@ -137,19 +143,48 @@ function Board({ socket }) {
       squaresCopy[i] = 'Bomb'
       setSquares(squaresCopy)
     } else if (item === 'soldierWantsToMove') {
-      setSoldierMoving(true)
+      setMovableSquareViewOpen(true)
       const tempArray = Array(33).fill(null)
       getAdjacentSquares(i).forEach(adjacentSquare => {
-        if (!squaresCopy[adjacentSquare] || !(squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench')) {
+        if (!squaresCopy[adjacentSquare] || !(squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench'
+            || squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Tank')) {
           tempArray[adjacentSquare] = squaresCopy[adjacentSquare]
-          squaresCopy[adjacentSquare] = `movableSquare ${i}`
+          squaresCopy[adjacentSquare] = `movableSquare ${i} soldier`
         }
       })
       setOverwritten(tempArray)
       setSquares(squaresCopy)
       return
-    } else if (item === 'soldierDoesntWantToMove') {
-      setSoldierMoving(false)
+    } else if (item === 'tankWantsToMove') {
+      setMovableSquareViewOpen(true)
+      const tempArray = Array(33).fill(null)
+      getAdjacentSquares(i).forEach(j => {
+        tempArray[j] = squaresCopy[j]
+        squaresCopy[j] = `movableSquare ${j} tank`
+        getAdjacentSquares(j).forEach(twoFarSquareIndex => {
+          if (twoFarSquareIndex != i) {
+            tempArray[twoFarSquareIndex] = squaresCopy[twoFarSquareIndex]
+            squaresCopy[twoFarSquareIndex] = `movableSquare ${i} tank`
+          }
+        })
+      })
+      setOverwritten(tempArray)
+      setSquares(squaresCopy)
+      return
+    } else if (item === 'spyAction') {
+      setMovableSquareViewOpen(true)
+      const tempArray = Array(33).fill(null)
+      getAdjacentSquares(i).forEach(adjacentSquare => {
+        if (squaresCopy[adjacentSquare]) {
+          tempArray[adjacentSquare] = squaresCopy[adjacentSquare]
+          squaresCopy[adjacentSquare] = `movableSquare ${i} spy`
+        }
+      })
+      setOverwritten(tempArray)
+      setSquares(squaresCopy)
+      return
+    } else if (item === 'closeMovableSquareView') {
+      setMovableSquareViewOpen(false)
       setMovableSquaresJustTurnedOff(true)
       squaresCopy.forEach((square, index) => {
         if (square && square.split(' ')[0] === 'movableSquare') {
@@ -166,7 +201,7 @@ function Board({ socket }) {
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
         setSquares(squaresCopy)
       } else if (item === 'soldierMoved') {
-        setSoldierMoving(false)
+        setMovableSquareViewOpen(false)
         var originSquare = Number(squaresCopy[i].split(' ')[1])
         squaresCopy[originSquare] = null
         getAdjacentSquares(originSquare).forEach(adjacentSquare => {
@@ -175,6 +210,37 @@ function Board({ socket }) {
           }
         })
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
+        setSquares(squaresCopy)
+      } else if (item === 'tankMoved') {
+        setMovableSquareViewOpen(false)
+        var originSquare = Number(squaresCopy[i].split(' ')[1])
+        squaresCopy.forEach((potentialMovableSquare,movableSquareIndex) => {
+          if (potentialMovableSquare && potentialMovableSquare.split(' ')[0] === 'movableSquare') {
+            squaresCopy[movableSquareIndex] = tempMovableSquaresOverwrite[movableSquareIndex]
+          }
+        })
+        squaresCopy[originSquare] = null
+        let adjacentToOriginIndices = getAdjacentSquares(originSquare)
+        let adjacentToDestinationIndices = getAdjacentSquares(i)
+        let middleIndex = adjacentToOriginIndices.filter(index => adjacentToDestinationIndices.includes(index))
+        squaresCopy[middleIndex] = null
+        squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
+        setSquares(squaresCopy)
+      } else if (item === 'spyMoved') {
+        setMovableSquareViewOpen(false)
+        var originSquare = Number(squaresCopy[i].split(' ')[1])
+        getAdjacentSquares(originSquare).forEach(adjacentSquare => {
+          if (squaresCopy[adjacentSquare] && squaresCopy[adjacentSquare].split(' ')[0] === 'movableSquare') {
+            squaresCopy[adjacentSquare] = tempMovableSquaresOverwrite[adjacentSquare]
+          }
+        })
+        squaresCopy[i] = (redIsNext ? 'Red' : 'Blue') + squaresCopy[i].split(/(?=[A-Z])/)[1]
+        setSquares(squaresCopy)
+      } else if (item === 'tank') {
+        squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
+        setSquares(squaresCopy)
+      } else if (item === 'spy') {
+        squaresCopy[i] = redIsNext ? 'RedSpy' : 'BlueSpy'
         setSquares(squaresCopy)
       } else if (item === 'trench') {
         squaresCopy[i] = redIsNext ? 'RedTrench' : 'BlueTrench'
@@ -219,10 +285,32 @@ function Board({ socket }) {
         </button>
       </div>
     } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedSoldier' || !iAmRed && squares[i] === 'BlueSoldier')) {
-      handleClick(i, 'soldierWantsToMove')
-      value = <img src={iAmRed ? redSoldier : blueSoldier} onClick={() => handleClick(i, 'soldierDoesntWantToMove')} height="50" width="50" />
+      return <div className="bigsquare">
+        <button className="minisquare" onClick={() => handleClick(i, 'soldierWantsToMove')} >
+          <img src={iAmRed ? redArrow : blueArrow} height="50" width="50" />
+        </button>
+        <button className="minisquare" onClick={() => handleClick(i, 'tank')} >
+          <img src={iAmRed ? redTank : blueTank} height="50" width="50" />
+        </button>
+      </div>
+    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedTrench' || !iAmRed && squares[i] === 'BlueTrench')) {
+      return <div className="bigsquare">
+        <button className="minisquare" onClick={() => handleClick(i, 'spy')} style={{ height: "100%" }} >
+          <img src={iAmRed ? redSpy : blueSpy} height="50" width="50" />
+        </button>
+      </div>
+    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedSpy' || !iAmRed && squares[i] === 'BlueSpy')) {
+      handleClick(i, 'spyAction')
+    } else if (squareCanBeClicked && (iAmRed && squares[i] === 'RedTank' || !iAmRed && squares[i] === 'BlueTank')) {
+      handleClick(i, 'tankWantsToMove')
     } else if (canIMove && !gameOver && squares[i] && squares[i].split(' ')[0] === 'movableSquare') {
-      return <button className="redsquare" onClick={() => handleClick(i, 'soldierMoved')} />
+      if (squares[i].split(' ')[2] === 'soldier') {
+        return <button className="redsquare" onClick={() => handleClick(i, 'soldierMoved')} />
+      } else if (squares[i].split(' ')[2] === 'tank') {
+        return <button className="redsquare" onClick={()=> handleClick(i, 'tankMoved')} />
+      } else if (squares[i].split(' ')[2] === 'spy') {
+        return <button className="redsquare" onClick={()=> handleClick(i, 'spyMoved')} />
+      }
     } else {
       if (squares[i] === 'RedPara') {
         value = <img src={redParachute} height="50" width="50" />
@@ -236,6 +324,14 @@ function Board({ socket }) {
         value = <img src={redTrench} height="50" width="50" />
       } else if (squares[i] === 'BlueTrench') {
         value = <img src={blueTrench} height="50" width="50" />
+      } else if (squares[i] === 'RedTank') {
+        value = <img src={redTank} height="50" width="50" />
+      } else if (squares[i] === 'BlueTank') {
+        value = <img src={blueTank} height="50" width="50" />
+      } else if (squares[i] === 'RedSpy') {
+        value = <img src={redSpy} height="50" width="50" />
+      } else if (squares[i] === 'BlueSpy') {
+        value = <img src={blueSpy} height="50" width="50" />
       } else if (squares[i] === 'Bomb') {
         value = <img className="bomb" src={bomb} height="50" width="50" />
       } else {
@@ -245,7 +341,7 @@ function Board({ socket }) {
     return <button className="square"
       id={`square${i}`}
       onClick={() => {
-        isSoldierMoving ? handleClick(i, 'soldierDoesntWantToMove') : setClickedSquare(clickedSquare === -1 ? i : -1)
+        isMovableSquareViewOpen ? handleClick(i, 'closeMovableSquareView') : setClickedSquare(clickedSquare === -1 ? i : -1)
       }
       }
     >{value}</button>
