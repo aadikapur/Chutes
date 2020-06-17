@@ -9,7 +9,7 @@ const Join = () => {
   function renderJoinArea() {
     if (gameType === 'none') {
       return <div>
-        <button className="button mt-20" type="submit" onClick={()=>setGameType('internet')}>Play over the internet</button>
+        <button className="button" type="submit" onClick={()=>setGameType('internet')}>Play over the internet</button>
       </div>
     }
     else if (gameType === 'internet') {
@@ -17,7 +17,7 @@ const Join = () => {
         <div>
           <input
             placeholder="Room Name"
-            className="joinInput mt-20"
+            className="joinInput"
             type="text"
             onChange={(event) => setRoom(event.target.value)}
           />
@@ -27,8 +27,9 @@ const Join = () => {
             event => (!room) ? event.preventDefault() : null
           }
           to={`/gameseven?room=${room}`}>
-          <button className="button mt-20" type="submit">Start 7x7 Board Game</button>
+          <button className="button" type="submit">Start 7x7 Board Game</button>
         </Link>
+        <button className="button" onClick={()=>setGameType('none')}>Back</button>
         </div>
     }
   }
@@ -36,7 +37,7 @@ const Join = () => {
   return (
     <div className="joinOuterContainer">
       <div className="joinInnerContainer">
-        <h1 className="heading">Parachutes<br />and<br />Bombers</h1>
+        <h1 className="heading">Parachutes and Bombers</h1>
         {renderJoinArea()}
       </div>
     </div>
