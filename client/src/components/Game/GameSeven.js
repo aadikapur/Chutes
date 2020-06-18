@@ -153,7 +153,7 @@ function Board({ socket, room }) {
       const tempArray = Array(33).fill(null)
       getAdjacentSquares(i).forEach(j => {
         tempArray[j] = squaresCopy[j]
-        squaresCopy[j] = `movableSquare ${j} tank`
+        squaresCopy[j] = `movableSquare ${i} tank`
         getAdjacentSquares(j).forEach(twoFarSquareIndex => {
           if (twoFarSquareIndex !== i) {
             tempArray[twoFarSquareIndex] = squaresCopy[twoFarSquareIndex]
@@ -212,12 +212,14 @@ function Board({ socket, room }) {
             squaresCopy[movableSquareIndex] = tempMovableSquaresOverwrite[movableSquareIndex]
           }
         })
-        squaresCopy[originSquare] = null
-        let adjacentToOriginIndices = getAdjacentSquares(originSquare)
-        let adjacentToDestinationIndices = getAdjacentSquares(i)
-        let middleIndex = adjacentToOriginIndices.filter(index => adjacentToDestinationIndices.includes(index))
-        squaresCopy[middleIndex] = null
+        if (!getAdjacentSquares(originSquare).includes(i)) {
+          let adjacentToOriginIndices = getAdjacentSquares(originSquare)
+          let adjacentToDestinationIndices = getAdjacentSquares(i)
+          let middleIndex = adjacentToOriginIndices.filter(index => adjacentToDestinationIndices.includes(index))
+          squaresCopy[middleIndex] = null
+        }
         squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
+        squaresCopy[originSquare] = null
         setSquares(squaresCopy)
       } else if (item === 'spyMoved') {
         setMovableSquareViewOpen(false)
