@@ -1,3 +1,8 @@
+html {
+  background: rgb(34, 34, 34);
+  height: 95vh;
+}
+
 body {
   font-family: monospace;
   font-size: x-large;
@@ -123,7 +128,7 @@ ol, ul {
 }
 
 .redsquare {
-  background: #000;
+  background: rgb(75, 0, 0);
   border: 1px solid #000;
   float: left;
   font-size: 24px;
@@ -209,6 +214,101 @@ ol, ul {
   border-left: 1px solid #000;
   text-align: center;
   vertical-align: middle;
+}
+
+.options {
+  margin: 0;
+  height: 60px;
+  width: 100%;
+  background: rgb(82, 82, 82);
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: large;
+  border: 0;
+}
+.options:hover {
+  background: rgb(110, 110, 110);
+}
+.options:active, .options:focus {
+  outline: 0;
+}
+.options::-moz-focus-inner {
+  border: 0;
+}
+
+.popupButton {
+  position: absolute;
+  top: 80%;
+  right: 5%;
+  left: 5%;
+  bottom: 5%;
+  text-align: center;
+  background: rgb(82, 82, 82);
+  color: #ddd;
+  font-weight: bold;
+  font-size: large;
+  border: 0;
+  width: 90%;
+  height: 15%;
+}
+.popupButton:hover {
+  background: rgb(110, 110, 110);
+}
+.popupButton:active, .popupButton:focus {
+  outline: 0;
+}
+.popupButton::-moz-focus-inner {
+  border: 0;
+}
+
+.popupButton2 {
+  position: absolute;
+  top: 60%;
+  right: 5%;
+  left: 5%;
+  bottom: 5%;
+  text-align: center;
+  background: rgb(82, 82, 82);
+  color: #ddd;
+  font-weight: bold;
+  font-size: large;
+  border: 0;
+  width: 90%;
+  height: 15%;
+}
+.popupButton2:hover {
+  background: rgb(110, 110, 110);
+}
+.popupButton2:active, .popupButton2:focus {
+  outline: 0;
+}
+.popupButton2::-moz-focus-inner {
+  border: 0;
+}
+
+.popupButton3 {
+  position: absolute;
+  top: 40%;
+  right: 5%;
+  left: 5%;
+  bottom: 5%;
+  text-align: center;
+  background: rgb(82, 82, 82);
+  color: #ddd;
+  font-weight: bold;
+  font-size: large;
+  border: 0;
+  width: 90%;
+  height: 15%;
+}
+.popupButton3:hover {
+  background: rgb(110, 110, 110);
+}
+.popupButton3:active, .popupButton3:focus {
+  outline: 0;
+}
+.popupButton3::-moz-focus-inner {
+  border: 0;
 }
 
 .board {

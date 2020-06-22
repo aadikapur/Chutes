@@ -35,10 +35,10 @@ io.on('connection', (socket) => {
     afterInit(playerNum)
   })
 
-  socket.on('iMoved', ({squares}) => {
+  socket.on('iMoved', ({squares, highlightedSquare}) => {
     const user = getUser(socket.id)
     console.log(squares)
-    socket.broadcast.to(user.room).emit('otherGuyMoved', {squares})
+    socket.broadcast.to(user.room).emit('otherGuyMoved', {squares, highlightedSquare})
   })
 
   socket.on('disconnect', () => {

@@ -55,6 +55,7 @@ const GameSeven = ({ location }) => {
 }
 
 function Board({ socket, room }) {
+  //game states
   const [squares, setSquares] = useState(() => {
     const redsquares = [0, 1, 2, 30, 31, 32]
     const bluesquares = [3, 9, 13, 19, 23, 29]
@@ -73,10 +74,18 @@ function Board({ socket, room }) {
   const [canIMove, setCanIMove] = useState(false)
   const [turnsToBomb, setTurnsToBomb] = useState([0, 0]) //[red,blue]
   const [gameOver, setGameEnded] = useState(false)
+  //movable squares
   const [movableSquaresJustTurnedOff, setMovableSquaresJustTurnedOff] = useState(false)
   const [isMovableSquareViewOpen, setMovableSquareViewOpen] = useState(false)
   const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(33).fill(null))
+  //popup states
   const [waitingForBlue, setWaitingForBlue] = useState(false)
+  const [instructions, setInstructions] = useState(false)
+  const [leaveOrRestartPopup, setLeaveOrRestartPopup] = useState(false)
+  const [redirect, setRedirect] = useState(false)
+  const [playAgain, setPlayAgain] = useState(false)
+  //highlighted square
+  const [highlightedSquare, setHighlightedSquare] = useState(-1)
 
   useEffect(() => {
     socket.emit('boardInitialized', (playerNum) => {
@@ -89,8 +98,9 @@ function Board({ socket, room }) {
         })
       }
     })
-    socket.on('otherGuyMoved', ({ squares }) => {
+    socket.on('otherGuyMoved', ({ squares, highlightedSquare }) => {
       setSquares(squares)
+      setHighlightedSquare(highlightedSquare)
     })
   }, [socket])
 
@@ -132,8 +142,11 @@ function Board({ socket, room }) {
   const handleClick = (i, item) => {
     setClickedSquare(-1)
     const squaresCopy = squares.slice()
+    let highlightedSquareToSend = -1
     if (item === 'bomb') {
       squaresCopy[i] = 'Bomb'
+      setHighlightedSquare(i)
+      highlightedSquareToSend=i
       setSquares(squaresCopy)
     } else if (item === 'soldierWantsToMove') {
       setMovableSquareViewOpen(true)
@@ -189,9 +202,13 @@ function Board({ socket, room }) {
     } else {
       if (item === 'parachute') {
         squaresCopy[i] = redIsNext ? 'RedPara' : 'BluePara'
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'soldier') {
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'soldierMoved') {
         setMovableSquareViewOpen(false)
@@ -203,6 +220,8 @@ function Board({ socket, room }) {
           }
         })
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'tankMoved') {
         setMovableSquareViewOpen(false)
@@ -220,6 +239,8 @@ function Board({ socket, room }) {
         }
         squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
         squaresCopy[originSquare] = null
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'spyMoved') {
         setMovableSquareViewOpen(false)
@@ -230,15 +251,23 @@ function Board({ socket, room }) {
           }
         })
         squaresCopy[i] = (redIsNext ? 'Red' : 'Blue') + squaresCopy[i].split(/(?=[A-Z])/)[1]
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'tank') {
         squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'spy') {
         squaresCopy[i] = redIsNext ? 'RedSpy' : 'BlueSpy'
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'trench') {
         squaresCopy[i] = redIsNext ? 'RedTrench' : 'BlueTrench'
+        setHighlightedSquare(i)
+        highlightedSquareToSend=i
         setSquares(squaresCopy)
       }
       const turnsToBombCopy = turnsToBomb.slice()
@@ -247,7 +276,7 @@ function Board({ socket, room }) {
       }
       setTurnsToBomb(turnsToBombCopy)
     }
-    socket.emit('iMoved', { squares: squaresCopy })
+    socket.emit('iMoved', { squares: squaresCopy, highlightedSquare: highlightedSquareToSend })
   }
 
   const renderSquare = (i) => {
@@ -339,12 +368,35 @@ function Board({ socket, room }) {
         isMovableSquareViewOpen ? handleClick(i, 'closeMovableSquareView') : setClickedSquare(clickedSquare === -1 ? i : -1)
       }
       }
+      style={highlightedSquare===i ? {background: "tan"} : {}}
     >{value}</button>
   }
 
   return (
     <div className="board">
+      {redirect ? <Redirect to='/' /> : null}
+      {playAgain ? <Redirect to={`/gameseven?room=${room}`} /> : null}
       {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Player 2 to join...</div></div> : null}
+      {instructions ?
+        <div className="popup"><div className="popup_inner">How to Play<button className="popupButton" onClick={()=> setInstructions(false)}>back</button></div></div>
+        : null}
+      {leaveOrRestartPopup ?
+        gameOver ?
+          <div className="popup">
+            <div className="popup_inner">play again?
+              <button className="popupButton3" onClick={()=> setPlayAgain(true)}>play again</button>
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
+              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
+            </div>
+          </div>
+        :
+          <div className="popup">
+            <div className="popup_inner">sure you want to leave?
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
+              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
+            </div>
+          </div>
+        : null}
       <div className="infoBar">
         <div className="topInnerContainer">Room: {room}</div>
         <div className="topInnerContainer">{`Team: ${iAmRed ? 'Red' : 'Blue'}`}</div>
@@ -353,6 +405,8 @@ function Board({ socket, room }) {
           :
           <div className="topInnerContainer">{'Next Player: ' + (redIsNext ? 'Red' : 'Blue')}</div>
         }
+        <div className="topInnerContainer"><button className="options" onClick={()=>setLeaveOrRestartPopup(true)}>&lt;--</button></div>
+        <div className="topInnerContainer"><button className="options" onClick={()=>setInstructions(true)}>?</button></div>
       </div>
       <div className="board-row">
         <button className="noclicksquare" />
