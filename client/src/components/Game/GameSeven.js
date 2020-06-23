@@ -503,17 +503,17 @@ const Base = ({ baseNumber, adjacentSquares }) => {
   }
   if (numberOfRedOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 1
-    return <button className="square" >
+    return <button className="basesquare" >
       <img alt="" src={bunkerRed} height="75" width="75" />
     </button>
   } else if (numberOfBlueOccupants > (adjacentSquares.length / 2)) {
     redBlueBases[baseNumber] = 2
-    return <button className="square" >
+    return <button className="basesquare" >
       <img alt="" src={bunkerBlue} height="75" width="75" />
     </button>
   } else {
     redBlueBases[baseNumber] = 0
-    return <button className="square" >
+    return <button className="basesquare" >
       <img alt="" src={bunker} height="75" width="75" />
     </button>
   }

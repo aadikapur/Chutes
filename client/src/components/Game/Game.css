@@ -1,6 +1,5 @@
 html {
   background: rgb(34, 34, 34);
-  height: 95vh;
 }
 
 body {
@@ -57,7 +56,7 @@ ol, ul {
   float: left;
   font-size: 24px;
   font-weight: bold;
-  height: 12vh;
+  height: 11vh;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
@@ -86,14 +85,14 @@ ol, ul {
   background: rgb(255, 255, 255);
 }
 
-.square {
+.square, .basesquare {
   background: rgb(209, 209, 209);
   border: 2px solid rgb(0, 0, 0);
   float: left;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 12vh;
+  height: 11vh;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
@@ -115,7 +114,7 @@ ol, ul {
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 12vh;
+  height: 11vh;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
@@ -134,7 +133,7 @@ ol, ul {
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 12vh;
+  height: 11vh;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
