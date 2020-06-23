@@ -19,8 +19,6 @@ import blueArrow from './blueArrow.png'
 import redSpy from './redSpy.png'
 import blueSpy from './blueSpy.png'
 import './Game.css';
-const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
-//const ENDPOINT = 'localhost:5000'
 let socket
 let redBlueBases
 
@@ -32,7 +30,7 @@ const GameSeven = ({ location }) => {
   useEffect(() => {
     const { room } = queryString.parse(location.search)
     setRoom(room)
-    socket = io(ENDPOINT)
+    socket = io()
     socket.emit('join', { room }, (error) => {
       if (error) {
         setRedirect(true)
