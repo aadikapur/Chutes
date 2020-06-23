@@ -20,7 +20,7 @@ import redSpy from './redSpy.png'
 import blueSpy from './blueSpy.png'
 import './Game.css';
 const ENDPOINT = 'https://parachutes-and-bombers.herokuapp.com/'
-//const ENDPOINT = 'localhost:5000'
+//const ENDPOINT = 'https://chutes.xyz/server'
 let socket
 let redBlueBases
 
