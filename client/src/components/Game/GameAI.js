@@ -21,7 +21,7 @@ import './Game.css';
 let socket
 let redBlueBases
 
-const GameSeven = ({ location }) => {
+const GameSeven = () => {
 
   return (
     <div className="game">
@@ -59,14 +59,14 @@ function Board() {
   const [instructions, setInstructions] = useState(false)
   const [leaveOrRestartPopup, setLeaveOrRestartPopup] = useState(false)
   const [redirect, setRedirect] = useState(false)
-  const [playAgain, setPlayAgain] = useState(false)
 
   useEffect(() => {
     const playerNum = 1
     setMyself(playerNum === 1 ? true : false)
     setCanIMove(playerNum === 1 ? true : false)
     setThereIsNoSocket(false)
-    socket = io()
+    //socket = io('localhost:5000')
+    socket=io()
     socket.on('aiMoved', ({ squares }) => {
       setSquares(squares)
     })
@@ -88,6 +88,7 @@ function Board() {
     setCanIMove(c => !c)
     if (calculateWinner()) {
       setGameEnded(true)
+      setLeaveOrRestartPopup(true)
     }
     setNextRed(r => !r)
   }, [squares])
@@ -321,7 +322,6 @@ function Board() {
   return (
     <div className="board">
       {redirect ? <Redirect to='/' /> : null}
-      {playAgain ? <Redirect to={`/ai`} /> : null}
       {thereIsNoSocket ? <div className="popup"><div className="popup_inner">Connecting...</div></div> : null}
       {instructions ?
         <div className="popup"><div className="popup_inner">How to Play<button className="popupButton" onClick={()=> setInstructions(false)}>back</button></div></div>
@@ -330,7 +330,7 @@ function Board() {
         gameOver ?
           <div className="popup">
             <div className="popup_inner">play again?
-              <button className="popupButton3" onClick={()=> setPlayAgain(true)}>play again</button>
+              <button className="popupButton3" onClick={()=> window.location.reload(false)}>play again</button>
               <button className="popupButton2" onClick={()=> setRedirect(true)}>leave</button>
               <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
             </div>

@@ -82,7 +82,6 @@ function Board({ socket, room }) {
   const [instructions, setInstructions] = useState(false)
   const [leaveOrRestartPopup, setLeaveOrRestartPopup] = useState(false)
   const [redirect, setRedirect] = useState(false)
-  const [playAgain, setPlayAgain] = useState(false)
   //highlighted square
   const [highlightedSquare, setHighlightedSquare] = useState(-1)
 
@@ -134,6 +133,7 @@ function Board({ socket, room }) {
     setCanIMove(c => !c)
     if (calculateWinner()) {
       setGameEnded(true)
+      setLeaveOrRestartPopup(true)
     }
     setNextRed(r => !r)
   }, [squares])
@@ -177,14 +177,20 @@ function Board({ socket, room }) {
       setSquares(squaresCopy)
       return
     } else if (item === 'spyAction') {
-      setMovableSquareViewOpen(true)
       const tempArray = Array(33).fill(null)
+      let anyMovableSquaresFound=false
       getAdjacentSquares(i).forEach(adjacentSquare => {
         if (squaresCopy[adjacentSquare]) {
           tempArray[adjacentSquare] = squaresCopy[adjacentSquare]
           squaresCopy[adjacentSquare] = `movableSquare ${i} spy`
+          anyMovableSquaresFound=true
         }
       })
+      if (!anyMovableSquaresFound) {
+        setMovableSquaresJustTurnedOff(true)
+      } else {
+        setMovableSquareViewOpen(true)
+      }
       setOverwritten(tempArray)
       setSquares(squaresCopy)
       return
@@ -374,7 +380,6 @@ function Board({ socket, room }) {
   return (
     <div className="board">
       {redirect ? <Redirect to='/' /> : null}
-      {playAgain ? <Redirect to={`/gameseven?room=${room}`} /> : null}
       {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Player 2 to join...</div></div> : null}
       {instructions ?
         <div className="popup"><div className="popup_inner">How to Play<button className="popupButton" onClick={()=> setInstructions(false)}>back</button></div></div>
@@ -383,7 +388,7 @@ function Board({ socket, room }) {
         gameOver ?
           <div className="popup">
             <div className="popup_inner">play again?
-              <button className="popupButton3" onClick={()=> setPlayAgain(true)}>play again</button>
+              <button className="popupButton3" onClick={()=> window.location.reload(false)}>play again</button>
               <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
               <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
             </div>
