@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router-dom'
-import queryString from 'query-string'
 import io from 'socket.io-client'
 import redParachute from './redParachute.png'
 import blueParachute from './blueParachute.png'
@@ -23,37 +22,15 @@ let socket
 let redBlueBases
 
 const GameSeven = ({ location }) => {
-  const [room, setRoom] = useState('')
-  const [redirect, setRedirect] = useState(false)
-  const [socketInitialized, setSocketInitialized] = useState(false)
-
-  useEffect(() => {
-    const { room } = queryString.parse(location.search)
-    setRoom(room)
-    socket = io()
-    //socket = io()
-    socket.emit('join', { room }, (error) => {
-      if (error) {
-        setRedirect(true)
-        alert(error)
-      }
-      setSocketInitialized(true)
-    })
-    return () => {
-      socket.emit('disconnect')
-      socket.close()
-    }
-  }, [location.search])
 
   return (
     <div className="game">
-      {redirect ? <Redirect to='/' /> : null}
-      {socketInitialized ? <Board socket={socket} room={room} /> : null}
+      <Board />
     </div>
   );
 }
 
-function Board({ socket, room }) {
+function Board() {
   //game states
   const [squares, setSquares] = useState(() => {
     const redsquares = [0, 1, 2, 30, 31, 32]
@@ -78,28 +55,20 @@ function Board({ socket, room }) {
   const [isMovableSquareViewOpen, setMovableSquareViewOpen] = useState(false)
   const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(33).fill(null))
   //popup states
-  const [waitingForBlue, setWaitingForBlue] = useState(false)
+  const [thereIsNoSocket, setThereIsNoSocket] = useState(false)
   const [instructions, setInstructions] = useState(false)
   const [leaveOrRestartPopup, setLeaveOrRestartPopup] = useState(false)
   const [redirect, setRedirect] = useState(false)
   const [playAgain, setPlayAgain] = useState(false)
-  //highlighted square
-  const [highlightedSquare, setHighlightedSquare] = useState(-1)
 
   useEffect(() => {
-    socket.emit('boardInitialized', (playerNum) => {
-      setMyself(playerNum === 1 ? true : false)
-      setCanIMove(playerNum === 1 ? true : false)
-      if (playerNum === 1) {
-        setWaitingForBlue(true)
-        socket.on('blueHasJoined', () => {
-          setWaitingForBlue(false)
-        })
-      }
-    })
-    socket.on('otherGuyMoved', ({ squares, highlightedSquare }) => {
+    const playerNum = 1
+    setMyself(playerNum === 1 ? true : false)
+    setCanIMove(playerNum === 1 ? true : false)
+    setThereIsNoSocket(false)
+    socket = io()
+    socket.on('aiMoved', ({ squares }) => {
       setSquares(squares)
-      setHighlightedSquare(highlightedSquare)
     })
   }, [socket])
 
@@ -109,28 +78,13 @@ function Board({ socket, room }) {
       setMovableSquaresJustTurnedOff(false)
       return
     }
-    squares.forEach((item, index) => {
-      if (item === 'Bomb') {
-        moveHasntFinishedYet = true
-        setTurnsToBomb(iAmRed === canIMove ? [4, turnsToBomb[1]] : [turnsToBomb[0], 4])
-        setTimeout(() => {
-          const squaresCopy = squares.slice()
-          getAdjacentSquares(index).forEach((adjacentSquare) => {
-            if (squaresCopy[adjacentSquare] && squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench') {
-              squaresCopy[adjacentSquare] = squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[0].concat('Para')
-            } else {
-              squaresCopy[adjacentSquare] = null
-            }
-          })
-          squaresCopy[index] = null
-          setSquares(squaresCopy)
-        }, 1000)
-      }
+    squares.forEach((item) => {
       if (item && item.split(' ')[0] === 'movableSquare') {
         moveHasntFinishedYet = true
       }
     })
     if (moveHasntFinishedYet) { return; }
+
     setCanIMove(c => !c)
     if (calculateWinner()) {
       setGameEnded(true)
@@ -141,11 +95,15 @@ function Board({ socket, room }) {
   const handleClick = (i, item) => {
     setClickedSquare(-1)
     const squaresCopy = squares.slice()
-    let highlightedSquareToSend = -1
     if (item === 'bomb') {
-      squaresCopy[i] = 'Bomb'
-      setHighlightedSquare(i)
-      highlightedSquareToSend=i
+      getAdjacentSquares(i).forEach((adjacentI) => {
+        if (squaresCopy[adjacentI] && squaresCopy[adjacentI].split(/(?=[A-Z])/)[1]==='Trench') {
+          squaresCopy[adjacentI] = squaresCopy[adjacentI].split(/(?=[A-Z])/)[0] + 'Para'
+        } else {
+          squaresCopy[adjacentI] = null
+        }
+      })
+      setTurnsToBomb(iAmRed ? [4,turnsToBomb[1]] : [turnsToBomb[0],4])
       setSquares(squaresCopy)
     } else if (item === 'soldierWantsToMove') {
       setMovableSquareViewOpen(true)
@@ -177,14 +135,20 @@ function Board({ socket, room }) {
       setSquares(squaresCopy)
       return
     } else if (item === 'spyAction') {
-      setMovableSquareViewOpen(true)
       const tempArray = Array(33).fill(null)
+      let anyMovableSquaresFound=false
       getAdjacentSquares(i).forEach(adjacentSquare => {
         if (squaresCopy[adjacentSquare]) {
           tempArray[adjacentSquare] = squaresCopy[adjacentSquare]
           squaresCopy[adjacentSquare] = `movableSquare ${i} spy`
+          anyMovableSquaresFound=true
         }
       })
+      if (!anyMovableSquaresFound) {
+        setMovableSquaresJustTurnedOff(true)
+      } else {
+        setMovableSquareViewOpen(true)
+      }
       setOverwritten(tempArray)
       setSquares(squaresCopy)
       return
@@ -201,13 +165,9 @@ function Board({ socket, room }) {
     } else {
       if (item === 'parachute') {
         squaresCopy[i] = redIsNext ? 'RedPara' : 'BluePara'
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'soldier') {
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'soldierMoved') {
         setMovableSquareViewOpen(false)
@@ -219,8 +179,6 @@ function Board({ socket, room }) {
           }
         })
         squaresCopy[i] = redIsNext ? 'RedSoldier' : 'BlueSoldier'
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'tankMoved') {
         setMovableSquareViewOpen(false)
@@ -238,8 +196,6 @@ function Board({ socket, room }) {
         }
         squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
         squaresCopy[originSquare] = null
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'spyMoved') {
         setMovableSquareViewOpen(false)
@@ -250,23 +206,15 @@ function Board({ socket, room }) {
           }
         })
         squaresCopy[i] = (redIsNext ? 'Red' : 'Blue') + squaresCopy[i].split(/(?=[A-Z])/)[1]
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'tank') {
         squaresCopy[i] = redIsNext ? 'RedTank' : 'BlueTank'
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'spy') {
         squaresCopy[i] = redIsNext ? 'RedSpy' : 'BlueSpy'
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       } else if (item === 'trench') {
         squaresCopy[i] = redIsNext ? 'RedTrench' : 'BlueTrench'
-        setHighlightedSquare(i)
-        highlightedSquareToSend=i
         setSquares(squaresCopy)
       }
       const turnsToBombCopy = turnsToBomb.slice()
@@ -275,7 +223,7 @@ function Board({ socket, room }) {
       }
       setTurnsToBomb(turnsToBombCopy)
     }
-    socket.emit('iMoved', { squares: squaresCopy, highlightedSquare: highlightedSquareToSend })
+    socket.emit('iMovedToAI', { squares: squaresCopy })
   }
 
   const renderSquare = (i) => {
@@ -367,15 +315,14 @@ function Board({ socket, room }) {
         isMovableSquareViewOpen ? handleClick(i, 'closeMovableSquareView') : setClickedSquare(clickedSquare === -1 ? i : -1)
       }
       }
-      style={highlightedSquare===i ? {background: "tan"} : {}}
     >{value}</button>
   }
 
   return (
     <div className="board">
       {redirect ? <Redirect to='/' /> : null}
-      {playAgain ? <Redirect to={`/gameseven?room=${room}`} /> : null}
-      {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Player 2 to join...</div></div> : null}
+      {playAgain ? <Redirect to={`/ai`} /> : null}
+      {thereIsNoSocket ? <div className="popup"><div className="popup_inner">Connecting...</div></div> : null}
       {instructions ?
         <div className="popup"><div className="popup_inner">How to Play<button className="popupButton" onClick={()=> setInstructions(false)}>back</button></div></div>
         : null}
@@ -384,20 +331,19 @@ function Board({ socket, room }) {
           <div className="popup">
             <div className="popup_inner">play again?
               <button className="popupButton3" onClick={()=> setPlayAgain(true)}>play again</button>
-              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave</button>
               <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
             </div>
           </div>
         :
           <div className="popup">
             <div className="popup_inner">sure you want to leave?
-              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave</button>
               <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
             </div>
           </div>
         : null}
       <div className="infoBar">
-        <div className="topInnerContainer">Room: {room}</div>
         <div className="topInnerContainer">{`Team: ${iAmRed ? 'Red' : 'Blue'}`}</div>
         {gameOver ?
           <div className="topInnerContainer">{((calculateWinner() === 'Red' && iAmRed) || (calculateWinner() === 'Blue' && !iAmRed)) ? 'You Won!' : 'You Lost'}</div>

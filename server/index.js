@@ -3,6 +3,7 @@ const socketio = require('socket.io');
 const http = require('http');
 const cors = require('cors');
 const {addUser,removeUser,getUser} = require('./users.js')
+const {getNewSquares} = require('./ai.js')
 const PORT = process.env.PORT || 5000;
 const router = require('./router');
 const app = express();
@@ -15,6 +16,7 @@ io.on('connection', (socket) => {
   connectCounter++
   console.log(`${connectCounter} sockets are connected`)
 
+  //og game
   socket.on('join', ({room}, afterJoin) => {
     //add user
     const {error, user} = addUser({id: socket.id, room})
@@ -45,6 +47,13 @@ io.on('connection', (socket) => {
     const user = removeUser(socket.id)
     console.log('a user disconnected')
     connectCounter--
+  })
+
+  //ai game
+  socket.on('iMovedToAI', ({squares}) => {
+    getNewSquares(squares, socket.id, (newSquares) => {
+      socket.emit('aiMoved', {squares: newSquares})
+    })
   })
 })
 

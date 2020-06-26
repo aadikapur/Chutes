@@ -9,6 +9,9 @@ const Join = () => {
   function renderJoinArea() {
     if (gameType === 'none') {
       return <div>
+        <Link to={'/ai'}>
+          <button className="button" type="submit">play against AI</button>
+        </Link>
         <button className="button" type="submit" onClick={()=>setGameType('internet')}>play against a friend</button>
       </div>
     }
@@ -26,7 +29,7 @@ const Join = () => {
           onClick={
             event => (!room) ? event.preventDefault() : null
           }
-          to={`/gameseven?room=${room}`}>
+          to={`/game?room=${room}`}>
           <button className="button" type="submit">start</button>
         </Link>
         <button className="button" onClick={()=>setGameType('none')}>back</button>
