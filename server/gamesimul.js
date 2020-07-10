@@ -63,7 +63,7 @@ function getLegalMoves(squares, canBomb, playerNum) {
       })
       makeTanks.push(index)
     } else if (playerNum===1 ? square===5 : square===6) { //tank
-      getTwoFarAdjacencySet(i).forEach(twoFarI => {
+      getTwoFarAdjacencySet(index).forEach(twoFarI => {
         moveTanks.push([index,twoFarI])
       })
     } else if (playerNum===1 ? square===7 : square===8) { //trench
@@ -107,6 +107,7 @@ function putBomb(squares,i) {
       squares[adjacentI]=0
     }
   })
+  return squares
 }
 
 function makeSoldier(squares,i,playernum) {
@@ -156,9 +157,31 @@ function makeMove(moves,squares,canBomb,playernum) {
     ,moveTanks,makeTrenches,makeSpies,moveSpies]
     = getLegalMoves(squares,canBomb,playernum)
   let moveFound = false
+  //experimental: force move movable objects
+  //let moveLow=0
+  //let moveHigh=546
+  //squares.forEach(square=> {
+  //  if ((square===3 && playernum===1) || (square===4 && playernum===2)) {
+  //    moveHigh=171
+  //    moveLow=99
+  //  } else if ((square===5 && playernum===1) || (square===6 && playernum===2)) {
+  //    moveHigh=408
+  //    moveLow=204
+  //  }
+  //})
+  //console.log('moveLow: '+moveLow)
+  //console.log('moveHigh: '+moveHigh)
   let i = 0
   while(!moveFound && i<546) {
     let move = moves[i]
+    //while (!(moveLow<=move && move<moveHigh)) {
+    //  if (move) {
+    //    console.log('move: '+move)
+    //  }
+    //  move=moves[i+1]
+    //  i++
+    //}
+    //console.log('moveoutofloop: '+move)
     if (move < 33 && parachutes.includes(move)) {
       squares = putParachute(squares,move,playernum)
       moveFound=true
@@ -174,10 +197,14 @@ function makeMove(moves,squares,canBomb,playernum) {
       }
     } else if (move<171) {
       move-=99
-      if (moveSoldiers.includes(soldierSpyMoveList[move])) {
-        squares = moveSoldier(squares,soldierSpyMoveList[move][0], soldierSpyMoveList[move][1])
-        moveFound=true
-      }
+      console.log('move= '+soldierSpyMoveList[move][0])
+      moveSoldiers.forEach(moveSoldierMove => {
+        if (moveSoldierMove[0]===soldierSpyMoveList[move][0]&&moveSoldierMove[1]===soldierSpyMoveList[move][1]) {
+          console.log('im here')
+          squares = moveSoldier(squares,soldierSpyMoveList[move][0], soldierSpyMoveList[move][1])
+          moveFound=true
+        }
+      })
     } else if (move<204) {
       move-=171
       if (makeTanks.includes(move)) {
@@ -187,10 +214,12 @@ function makeMove(moves,squares,canBomb,playernum) {
     } else if (move<408) {
       move-=204
       let tankMove = tankMoveList[move]
-      if (moveTanks.includes(tankMove)) {
-        squares = moveTank(squares,tankMove[0], tankMove[1])
-        moveFound=true
-      }
+      moveTanks.forEach(moveTankMove=> {
+        if (moveTankMove[0]===tankMove[0]&&moveTankMove[1]===tankMove[1]&& moveTankMove[2]===tankMove[2]) {
+          squares = moveTank(squares,tankMove[0], tankMove[1])
+          moveFound=true
+        }
+      })
     } else if (move-441) {
       move-=408
       if (makeTrenches.includes(move)) {
@@ -206,10 +235,12 @@ function makeMove(moves,squares,canBomb,playernum) {
     } else if (move<546) {
       move-=474
       let spyMove = soldierSpyMoveList[move]
-      if (moveSpies.includes(spyMove)) {
-        squares = moveSpy(squares,spyMove[1],playernum)
-        moveFound=true
-      }
+      moveSpies.forEach(moveSpyMove => {
+        if (moveSpyMove[0]===spyMove[0]&&moveSpyMove[1]===spyMove[1]) {
+          squares = moveSpy(squares,spyMove[1],playernum)
+          moveFound=true
+        }
+      })
     }
 
     //return if move was found otherwise iterate over next i
