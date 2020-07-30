@@ -36,11 +36,9 @@ async function getNewSquares(squares,socketId, callback) {
       }
     }
   })
-  //console.log(state)
   //predict
   const model = await tf.loadLayersModel('file://tfjs_dir/model.json');
   var moves = reverseArgSort(model.predict(tf.stack([state])).arraySync()[0])
-  //console.log(moves)
   //give back new squares array
   let canBomb = null
   agentTurnsToBomb.forEach(agent => {
@@ -48,17 +46,14 @@ async function getNewSquares(squares,socketId, callback) {
       canBomb = agent.value>0 ? false : true
     }
   })
-  if (!canBomb) {
+  if (canBomb === null) {
     newAgent(socketId)
     canBomb=true
   }
-  //i think the function stops in this next line 57 into an infinite loop or smth bc no console logs after this
   for (var i=0; i<NUMBER_OF_CELLS; i++) {
     state[i]*=BOARD_RANGE
   }
-  console.log('state')
-  console.log(state)
-  console.log('canBomb :' + canBomb)
+  console.log('moves '+moves+'\nnumber of moves: '+moves.length)
   let {newSquares, isBomb} = makeMove(moves,state,canBomb,2)
   agentTurnsToBomb.forEach(agent => {
     if (agent.key===socketId) {
@@ -67,7 +62,6 @@ async function getNewSquares(squares,socketId, callback) {
         : (agent.value===0 ? 0 : agent.value-1)
     }
   })
-  console.log(newSquares)
   newSquares.forEach((newSquare, i) => {
     for (var key in CONVERSION) {
       if (CONVERSION[key]===newSquare) {

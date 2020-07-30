@@ -39,7 +39,6 @@ io.on('connection', (socket) => {
 
   socket.on('iMoved', ({squares, highlightedSquare}) => {
     const user = getUser(socket.id)
-    console.log(squares)
     socket.broadcast.to(user.room).emit('otherGuyMoved', {squares, highlightedSquare})
   })
 
@@ -52,7 +51,7 @@ io.on('connection', (socket) => {
   //ai game
   socket.on('iMovedToAI', ({squares}) => {
     getNewSquares(squares, socket.id, (newSquares) => {
-      socket.emit('aiMoved', {squares: newSquares})
+      socket.emit('aiMoved', {newSquares})
     })
   })
 })

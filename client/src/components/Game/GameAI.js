@@ -67,8 +67,8 @@ function Board() {
     setThereIsNoSocket(false)
     //socket = io('localhost:5000')
     socket=io()
-    socket.on('aiMoved', ({ squares }) => {
-      setSquares(squares)
+    socket.on('aiMoved', ({ newSquares }) => {
+      setSquares(newSquares)
     })
   }, [socket])
 
