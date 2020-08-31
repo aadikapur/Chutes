@@ -12,7 +12,8 @@ const CONVERSION = {
   'RedTrench': 7,
   'BlueTrench': 8,
   'RedSpy': 9,
-  'BlueSpy': 10
+  'BlueSpy': 10,
+  'Bomb' : 11
 }
 const agentTurnsToBomb = Array()
 
@@ -53,7 +54,7 @@ async function getNewSquares(squares,socketId, callback) {
   for (var i=0; i<NUMBER_OF_CELLS; i++) {
     state[i]*=BOARD_RANGE
   }
-  console.log('moves '+moves+'\nnumber of moves: '+moves.length)
+  //console.log('moves '+moves+'\nnumber of moves: '+moves.length)
   let {newSquares, isBomb} = makeMove(moves,state,canBomb,2)
   agentTurnsToBomb.forEach(agent => {
     if (agent.key===socketId) {

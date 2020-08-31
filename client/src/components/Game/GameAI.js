@@ -17,6 +17,13 @@ import redArrow from './redArrow.png'
 import blueArrow from './blueArrow.png'
 import redSpy from './redSpy.png'
 import blueSpy from './blueSpy.png'
+import instructions1 from './instructions1.jpg'
+import instructions2 from './instructions2.jpg'
+import instructions3 from './instructions3.jpg'
+import instructions4 from './instructions4.jpg'
+import instructions5 from './instructions5.jpg'
+import instructions6 from './instructions6.jpg'
+import instructions7 from './instructions7.jpg'
 import './Game.css';
 let socket
 let redBlueBases
@@ -56,7 +63,7 @@ function Board() {
   const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(33).fill(null))
   //popup states
   const [thereIsNoSocket, setThereIsNoSocket] = useState(false)
-  const [instructions, setInstructions] = useState(false)
+  const [instructions, setInstructions] = useState(0) //0 off 1-10 pages
   const [leaveOrRestartPopup, setLeaveOrRestartPopup] = useState(false)
   const [redirect, setRedirect] = useState(false)
 
@@ -78,7 +85,23 @@ function Board() {
       setMovableSquaresJustTurnedOff(false)
       return
     }
-    squares.forEach((item) => {
+    squares.forEach((item, index) => {
+      if (item === 'Bomb') {
+        moveHasntFinishedYet = true
+        setTurnsToBomb(iAmRed === canIMove ? [4, turnsToBomb[1]] : [turnsToBomb[0], 4])
+        setTimeout(() => {
+          const squaresCopy = squares.slice()
+          getAdjacentSquares(index).forEach((adjacentSquare) => {
+            if (squaresCopy[adjacentSquare] && squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[1] === 'Trench') {
+              squaresCopy[adjacentSquare] = squaresCopy[adjacentSquare].split(/(?=[A-Z])/)[0].concat('Para')
+            } else {
+              squaresCopy[adjacentSquare] = null
+            }
+          })
+          squaresCopy[index] = null
+          setSquares(squaresCopy)
+        }, 1000)
+      }
       if (item && item.split(' ')[0] === 'movableSquare') {
         moveHasntFinishedYet = true
       }
@@ -97,6 +120,7 @@ function Board() {
     setClickedSquare(-1)
     const squaresCopy = squares.slice()
     if (item === 'bomb') {
+      //squaresCopy[i] = 'Bomb'
       getAdjacentSquares(i).forEach((adjacentI) => {
         if (squaresCopy[adjacentI] && squaresCopy[adjacentI].split(/(?=[A-Z])/)[1]==='Trench') {
           squaresCopy[adjacentI] = squaresCopy[adjacentI].split(/(?=[A-Z])/)[0] + 'Para'
@@ -234,41 +258,41 @@ function Board() {
       if (turnsToBomb[iAmRed ? 0 : 1] === 0) {
         return <div className="bigsquare">
           <button id="parachute" className="minisquare" onClick={() => handleClick(i, 'parachute')} >
-            <img alt="parachute button" src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
+            <img alt="" src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
           </button>
           <button id="bomb" className="minisquare" onClick={() => handleClick(i, 'bomb')} >
-            <img alt="bomb button" src={bomb} height="50" width="50" />
+            <img alt="" src={bomb} height="50" width="50" />
           </button>
         </div>
       } else {
         value = <div className="bigsquare">
           <button className="minisquare" onClick={() => handleClick(i, 'parachute')} style={{ height: "100%" }}>
-            <img alt="parachute button" src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
+            <img alt="" src={iAmRed ? redParachute : blueParachute} height="50" width="50" />
           </button>
         </div>
       }
     } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedPara') || (!iAmRed && squares[i] === 'BluePara'))) {
       return <div className="bigsquare">
         <button className="minisquare" onClick={() => handleClick(i, 'soldier')} >
-          <img alt="soldier button" src={iAmRed ? redSoldier : blueSoldier} height="50" width="50" />
+          <img alt="" src={iAmRed ? redSoldier : blueSoldier} height="50" width="50" />
         </button>
         <button className="minisquare" onClick={() => handleClick(i, 'trench')} >
-          <img alt="trench button" src={iAmRed ? redTrench : blueTrench} height="50" width="50" />
+          <img alt="" src={iAmRed ? redTrench : blueTrench} height="50" width="50" />
         </button>
       </div>
     } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedSoldier') || (!iAmRed && squares[i] === 'BlueSoldier'))) {
       return <div className="bigsquare">
         <button className="minisquare" onClick={() => handleClick(i, 'soldierWantsToMove')} >
-          <img alt="arrow" src={iAmRed ? redArrow : blueArrow} height="50" width="50" />
+          <img alt="" src={iAmRed ? redArrow : blueArrow} height="50" width="50" />
         </button>
         <button className="minisquare" onClick={() => handleClick(i, 'tank')} >
-          <img alt="tank" src={iAmRed ? redTank : blueTank} height="50" width="50" />
+          <img alt="" src={iAmRed ? redTank : blueTank} height="50" width="50" />
         </button>
       </div>
     } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedTrench') || (!iAmRed && squares[i] === 'BlueTrench'))) {
       return <div className="bigsquare">
         <button className="minisquare" onClick={() => handleClick(i, 'spy')} style={{ height: "100%" }} >
-          <img alt="spy" src={iAmRed ? redSpy : blueSpy} height="50" width="50" />
+          <img alt="" src={iAmRed ? redSpy : blueSpy} height="50" width="50" />
         </button>
       </div>
     } else if (squareCanBeClicked && ((iAmRed && squares[i] === 'RedSpy') || (!iAmRed && squares[i] === 'BlueSpy'))) {
@@ -285,25 +309,25 @@ function Board() {
       }
     } else {
       if (squares[i] === 'RedPara') {
-        value = <img alt="" src={redParachute} height="50" width="50" />
+        value = <img alt="" src={redParachute} height="70" width="50" />
       } else if (squares[i] === 'BluePara') {
-        value = <img alt="" src={blueParachute} height="50" width="50" />
+        value = <img alt="" src={blueParachute} height="70" width="50" />
       } else if (squares[i] === 'RedSoldier') {
-        value = <img alt="" src={redSoldier} height="50" width="50" />
+        value = <img alt="" src={redSoldier} height="70" width="50" />
       } else if (squares[i] === 'BlueSoldier') {
-        value = <img alt="" src={blueSoldier} height="50" width="50" />
+        value = <img alt="" src={blueSoldier} height="70" width="50" />
       } else if (squares[i] === 'RedTrench') {
-        value = <img alt="" src={redTrench} height="50" width="50" />
+        value = <img alt="" src={redTrench} height="100" width="70" />
       } else if (squares[i] === 'BlueTrench') {
-        value = <img alt="" src={blueTrench} height="50" width="50" />
+        value = <img alt="" src={blueTrench} height="100" width="70" />
       } else if (squares[i] === 'RedTank') {
         value = <img alt="" src={redTank} height="50" width="50" />
       } else if (squares[i] === 'BlueTank') {
         value = <img alt="" src={blueTank} height="50" width="50" />
       } else if (squares[i] === 'RedSpy') {
-        value = <img alt="" src={redSpy} height="50" width="50" />
+        value = <img alt="" src={redSpy} height="60" width="30" />
       } else if (squares[i] === 'BlueSpy') {
-        value = <img alt="" src={blueSpy} height="50" width="50" />
+        value = <img alt="" src={blueSpy} height="60" width="30" />
       } else if (squares[i] === 'Bomb') {
         value = <img alt="" className="bomb" src={bomb} height="50" width="50" />
       } else {
@@ -319,27 +343,102 @@ function Board() {
     >{value}</button>
   }
 
+  const renderInstructionsImage = () => {
+    switch (instructions) {
+      case 1:
+        return <img alt="" className="instructionsContent" src={instructions1}/>
+      case 2:
+        return <img alt="" className="instructionsContent" src={instructions2}/>
+      case 3:
+        return <img alt="" className="instructionsContent" src={instructions3}/>
+      case 4:
+        return <img alt="" className="instructionsContent" src={instructions4}/>
+      case 5:
+        return <img alt="" className="instructionsContent" src={instructions5}/>
+      case 6:
+        return <img alt="" className="instructionsContent" src={instructions6}/>
+      case 7:
+        return <img alt="" className="instructionsContent" src={instructions7}/>
+    }
+  }
+
+  function checkKey(e) {
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+        // up arrow
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+    }
+    //backspace
+    else if (e.keyCode == '8') {
+      if (leaveOrRestartPopup===false) {
+        setLeaveOrRestartPopup(true)
+      } else if (leaveOrRestartPopup===true) {
+        setLeaveOrRestartPopup(false)
+      }
+    }
+    //h or ?
+    else if (e.keyCode == '72' || e.keyCode == '191') {
+      if (instructions<1) {
+        setInstructions(1)
+      } else {
+        setInstructions(0)
+      }
+    }
+    //left
+    else if (e.keyCode == '37') {
+      if (instructions>1) {
+        setInstructions(i=>i-1)
+      }
+    }
+    //right
+    else if (e.keyCode == '39') {
+      if (instructions<7) {
+        setInstructions(i=>i+1)
+      }
+    }
+  }
+
   return (
-    <div className="board">
+    <div className="board" onKeyDown={checkKey}>
       {redirect ? <Redirect to='/' /> : null}
       {thereIsNoSocket ? <div className="popup"><div className="popup_inner">Connecting...</div></div> : null}
-      {instructions ?
-        <div className="popup"><div className="popup_inner">How to Play<button className="popupButton" onClick={()=> setInstructions(false)}>back</button></div></div>
+      {instructions>0 ?
+        <div className="popup">
+          <div className="popup_inner">{`Instructions (${instructions}/7)`}
+            <button className="popupX" onClick={()=> setInstructions(0)}>X</button>
+            { 
+              instructions>1 ?
+              <button className="instructionLeft" onClick={() => setInstructions(i=>i-1)}>&larr;</button>
+              : null
+            }
+            {
+              instructions<7 ?
+              <button className="instructionRight" onClick={() => setInstructions(i=>i+1)}>&rarr;</button>
+              : null
+            }
+            {renderInstructionsImage()}
+          </div>
+        </div>
         : null}
       {leaveOrRestartPopup ?
         gameOver ?
           <div className="popup">
-            <div className="popup_inner">play again?
-              <button className="popupButton3" onClick={()=> window.location.reload(false)}>play again</button>
-              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave</button>
-              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
+            <div className="popup_inner">Play Again?
+              <button className="popupButton3" onClick={()=> window.location.reload(false)}>Play Again</button>
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>Leave</button>
+              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>Go back to game</button>
+              <button className="popupX" onClick={()=> setLeaveOrRestartPopup(false)}>X</button>
             </div>
           </div>
         :
           <div className="popup">
-            <div className="popup_inner">sure you want to leave?
-              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave</button>
-              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
+            <div className="popup_inner">Sure you want to leave?
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>Leave</button>
+              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>Go back to game</button>
+              <button className="popupX" onClick={()=> setLeaveOrRestartPopup(false)}>X</button>
             </div>
           </div>
         : null}
@@ -350,8 +449,8 @@ function Board() {
           :
           <div className="topInnerContainer">{'Next Player: ' + (redIsNext ? 'Red' : 'Blue')}</div>
         }
-        <div className="topInnerContainer"><button className="options" onClick={()=>setLeaveOrRestartPopup(true)}>&lt;--</button></div>
-        <div className="topInnerContainer"><button className="options" onClick={()=>setInstructions(true)}>?</button></div>
+        <div className="topInnerContainer"><button className="options" onClick={()=>setLeaveOrRestartPopup(true)}>&larr;</button></div>
+        <div className="topInnerContainer"><button className="options" onClick={()=>setInstructions(1)}>?</button></div>
       </div>
       <div className="board-row">
         <button className="noclicksquare" />

@@ -18,6 +18,13 @@ import redArrow from './redArrow.png'
 import blueArrow from './blueArrow.png'
 import redSpy from './redSpy.png'
 import blueSpy from './blueSpy.png'
+import instructions1 from './instructions1.jpg'
+import instructions2 from './instructions2.jpg'
+import instructions3 from './instructions3.jpg'
+import instructions4 from './instructions4.jpg'
+import instructions5 from './instructions5.jpg'
+import instructions6 from './instructions6.jpg'
+import instructions7 from './instructions7.jpg'
 import './Game.css';
 let socket
 let redBlueBases
@@ -31,7 +38,7 @@ const GameSeven = ({ location }) => {
     const { room } = queryString.parse(location.search)
     setRoom(room)
     socket = io()
-    //socket = io()
+    //socket = io('localhost:5000')
     socket.emit('join', { room }, (error) => {
       if (error) {
         setRedirect(true)
@@ -79,7 +86,7 @@ function Board({ socket, room }) {
   const [tempMovableSquaresOverwrite, setOverwritten] = useState(Array(33).fill(null))
   //popup states
   const [waitingForBlue, setWaitingForBlue] = useState(false)
-  const [instructions, setInstructions] = useState(false)
+  const [instructions, setInstructions] = useState(0)
   const [leaveOrRestartPopup, setLeaveOrRestartPopup] = useState(false)
   const [redirect, setRedirect] = useState(false)
   //highlighted square
@@ -376,28 +383,103 @@ function Board({ socket, room }) {
       style={highlightedSquare===i ? {background: "tan"} : {}}
     >{value}</button>
   }
+  
+  const renderInstructionsImage = () => {
+    switch (instructions) {
+      case 1:
+        return <img alt="" className="instructionsContent" src={instructions1}/>
+      case 2:
+        return <img alt="" className="instructionsContent" src={instructions2}/>
+      case 3:
+        return <img alt="" className="instructionsContent" src={instructions3}/>
+      case 4:
+        return <img alt="" className="instructionsContent" src={instructions4}/>
+      case 5:
+        return <img alt="" className="instructionsContent" src={instructions5}/>
+      case 6:
+        return <img alt="" className="instructionsContent" src={instructions6}/>
+      case 7:
+        return <img alt="" className="instructionsContent" src={instructions7}/>
+    }
+  }
+
+  function checkKey(e) {
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+        // up arrow
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+    }
+    //backspace
+    else if (e.keyCode == '8') {
+      if (leaveOrRestartPopup===false) {
+        setLeaveOrRestartPopup(true)
+      } else if (leaveOrRestartPopup===true) {
+        setLeaveOrRestartPopup(false)
+      }
+    }
+    //h or ?
+    else if (e.keyCode == '72' || e.keyCode == '191') {
+      if (instructions<1) {
+        setInstructions(1)
+      } else {
+        setInstructions(0)
+      }
+    }
+    //left
+    else if (e.keyCode == '37') {
+      if (instructions>1) {
+        setInstructions(i=>i-1)
+      }
+    }
+    //right
+    else if (e.keyCode == '39') {
+      if (instructions<7) {
+        setInstructions(i=>i+1)
+      }
+    }
+  }
 
   return (
-    <div className="board">
+    <div className="board" onKeyDown={checkKey}>
       {redirect ? <Redirect to='/' /> : null}
-      {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Player 2 to join...</div></div> : null}
-      {instructions ?
-        <div className="popup"><div className="popup_inner">How to Play<button className="popupButton" onClick={()=> setInstructions(false)}>back</button></div></div>
+      {waitingForBlue ? <div className="popup"><div className="popup_inner">Waiting for Blue to join...</div></div> : null}
+      {instructions>0 ?
+        <div className="popup">
+          <div className="popup_inner">{`Instructions (${instructions}/7)`}
+            <button className="popupX" onClick={()=> setInstructions(0)}>X</button>
+            { 
+              instructions>1 ?
+              <button className="instructionLeft" onClick={() => setInstructions(i=>i-1)}>&larr;</button>
+              : null
+            }
+            {
+              instructions<7 ?
+              <button className="instructionRight" onClick={() => setInstructions(i=>i+1)}>&rarr;</button>
+              : null
+            }
+            {renderInstructionsImage()}
+          </div>
+        </div>
         : null}
       {leaveOrRestartPopup ?
         gameOver ?
           <div className="popup">
-            <div className="popup_inner">play again?
-              <button className="popupButton3" onClick={()=> window.location.reload(false)}>play again</button>
-              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
-              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
+            <div className="popup_inner">Play Again?
+              <button className="popupButton3" onClick={()=> window.location.reload(false)}>Play Again</button>
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>Leave Room</button>
+              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>Go back to game</button>
+              <button className="popupX" onClick={()=> setLeaveOrRestartPopup(false)}>X</button>
             </div>
           </div>
         :
           <div className="popup">
-            <div className="popup_inner">sure you want to leave?
-              <button className="popupButton2" onClick={()=> setRedirect(true)}>leave room</button>
-              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>go back to game</button>
+            <div className="popup_inner">Sure you want to leave?
+              <button className="popupButton2" onClick={()=> setRedirect(true)}>Leave Room</button>
+              <button className="popupButton" onClick={()=> setLeaveOrRestartPopup(false)}>Go back to game</button>
+              <button className="popupX" onClick={()=> setLeaveOrRestartPopup(false)}>X</button>
             </div>
           </div>
         : null}
@@ -409,8 +491,8 @@ function Board({ socket, room }) {
           :
           <div className="topInnerContainer">{'Next Player: ' + (redIsNext ? 'Red' : 'Blue')}</div>
         }
-        <div className="topInnerContainer"><button className="options" onClick={()=>setLeaveOrRestartPopup(true)}>&lt;--</button></div>
-        <div className="topInnerContainer"><button className="options" onClick={()=>setInstructions(true)}>?</button></div>
+        <div className="topInnerContainer"><button className="options" onClick={()=>setLeaveOrRestartPopup(true)}>&larr;</button></div>
+        <div className="topInnerContainer"><button className="options" onClick={()=>setInstructions(1)}>?</button></div>
       </div>
       <div className="board-row">
         <button className="noclicksquare" />

@@ -1,3 +1,4 @@
+// 0 nothing 1/2 parachute 3/4 soldier 5/6 tank 7/8 trench 9/10 spy 11 bomb
 const adjacency = [
   [4],             
   [6],             
@@ -100,13 +101,14 @@ function putParachute(squares, i, playernum) {
 }
 
 function putBomb(squares,i) {
-  adjacency[i].forEach(adjacentI => {
-    if ([7,8].includes(squares[adjacentI])) {
-      squares[adjacentI]=squares[adjacentI]-6
-    } else {
-      squares[adjacentI]=0
-    }
-  })
+  //adjacency[i].forEach(adjacentI => {
+  //  if ([7,8].includes(squares[adjacentI])) {
+  //    squares[adjacentI]=squares[adjacentI]-6
+  //  } else {
+  //    squares[adjacentI]=0
+  //  }
+  //})
+  squares[i]=11
   return squares
 }
 
@@ -160,7 +162,7 @@ function makeMove(moves,squares,canBomb,playernum) {
   //experimental: manual bombing
   if (canBomb) {
     squares.forEach((item,index) => {
-      if (item===0) {
+      if (!moveFound && item===0) {
         let bombdiff = 0
         adjacency[index].forEach(adjacentI => {
           if (squares[adjacentI]===1) {
@@ -224,11 +226,11 @@ function makeMove(moves,squares,canBomb,playernum) {
       }
     } else if (move<171) {
       move-=99
-      console.log('move= '+soldierSpyMoveList[move][0]+' '+soldierSpyMoveList[move][1])
+      //console.log('move= '+soldierSpyMoveList[move][0]+' '+soldierSpyMoveList[move][1])
       moveSoldiers.forEach(moveSoldierMove => {
-        console.log('moveSoldierMove= '+moveSoldierMove[0]+' '+moveSoldierMove[1])
+        //console.log('moveSoldierMove= '+moveSoldierMove[0]+' '+moveSoldierMove[1])
         if (moveSoldierMove[0]===soldierSpyMoveList[move][0]&&moveSoldierMove[1]===soldierSpyMoveList[move][1]) {
-          console.log('im here')
+          //console.log('im here')
           squares = moveSoldier(squares,soldierSpyMoveList[move][0], soldierSpyMoveList[move][1])
           moveFound=true
         }

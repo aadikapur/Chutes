@@ -12,9 +12,9 @@ const io = socketio(server);
 var connectCounter = 0
 
 io.on('connection', (socket) => {
-  console.log('new connection')
+  //console.log('new connection')
   connectCounter++
-  console.log(`${connectCounter} sockets are connected`)
+  //console.log(`${connectCounter} sockets are connected`)
 
   //og game
   socket.on('join', ({room}, afterJoin) => {
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     const user = removeUser(socket.id)
-    console.log('a user disconnected')
+    //console.log('a user disconnected')
     connectCounter--
   })
 
