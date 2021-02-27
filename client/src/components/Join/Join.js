@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom'
 import './Join.css'
 
 const Join = () => {
   const [room, setRoom] = useState('')
   const [gameType, setGameType] = useState('none')
+  const [redirect, setRedirect] = useState(false)
+
+  function checkKey(e) {
+    e = e || window.event
+    if (e.keyCode == '13') {
+      setRedirect(true)
+    }
+  }
 
   function renderJoinArea() {
     if (gameType === 'none') {
@@ -23,6 +32,7 @@ const Join = () => {
             className="joinInput"
             type="text"
             onChange={(event) => setRoom(event.target.value)}
+            autoFocus
           />
         </div>
         <Link
@@ -39,8 +49,10 @@ const Join = () => {
 
   return (
     <div className="joinOuterContainer">
-      <div className="joinInnerContainer">
+      <div className="joinInnerContainer" onKeyDown={checkKey}>
         <h1 className="heading">chutes</h1>
+        {redirect ?
+          <Redirect to={`/game?room=${room}`}/> : null}
         {renderJoinArea()}
       </div>
     </div>

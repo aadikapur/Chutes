@@ -17,13 +17,7 @@ import redArrow from './redArrow.png'
 import blueArrow from './blueArrow.png'
 import redSpy from './redSpy.png'
 import blueSpy from './blueSpy.png'
-import instructions1 from './instructions1.jpg'
-import instructions2 from './instructions2.jpg'
-import instructions3 from './instructions3.jpg'
-import instructions4 from './instructions4.jpg'
-import instructions5 from './instructions5.jpg'
-import instructions6 from './instructions6.jpg'
-import instructions7 from './instructions7.jpg'
+import instructionstotal from './instructionstotal.png'
 import './Game.css';
 let socket
 let redBlueBases
@@ -346,19 +340,7 @@ function Board() {
   const renderInstructionsImage = () => {
     switch (instructions) {
       case 1:
-        return <img alt="" className="instructionsContent" src={instructions1}/>
-      case 2:
-        return <img alt="" className="instructionsContent" src={instructions2}/>
-      case 3:
-        return <img alt="" className="instructionsContent" src={instructions3}/>
-      case 4:
-        return <img alt="" className="instructionsContent" src={instructions4}/>
-      case 5:
-        return <img alt="" className="instructionsContent" src={instructions5}/>
-      case 6:
-        return <img alt="" className="instructionsContent" src={instructions6}/>
-      case 7:
-        return <img alt="" className="instructionsContent" src={instructions7}/>
+        return <img alt="" className="instructionsContent" src={instructionstotal}/>
     }
   }
 
@@ -387,18 +369,6 @@ function Board() {
         setInstructions(0)
       }
     }
-    //left
-    else if (e.keyCode == '37') {
-      if (instructions>1) {
-        setInstructions(i=>i-1)
-      }
-    }
-    //right
-    else if (e.keyCode == '39') {
-      if (instructions<7) {
-        setInstructions(i=>i+1)
-      }
-    }
   }
 
   return (
@@ -407,18 +377,8 @@ function Board() {
       {thereIsNoSocket ? <div className="popup"><div className="popup_inner">Connecting...</div></div> : null}
       {instructions>0 ?
         <div className="popup">
-          <div className="popup_inner">{`Instructions (${instructions}/7)`}
+          <div className="popup_inner">{`Instructions`}
             <button className="popupX" onClick={()=> setInstructions(0)}>X</button>
-            { 
-              instructions>1 ?
-              <button className="instructionLeft" onClick={() => setInstructions(i=>i-1)}>&larr;</button>
-              : null
-            }
-            {
-              instructions<7 ?
-              <button className="instructionRight" onClick={() => setInstructions(i=>i+1)}>&rarr;</button>
-              : null
-            }
             {renderInstructionsImage()}
           </div>
         </div>
